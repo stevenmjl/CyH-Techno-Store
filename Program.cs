@@ -1,10 +1,18 @@
 using CyH_Techno_Store.Components;
+using CyH_Techno_Store.DAL;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Obtenermos el ConStr para agregarlo al contexto
+var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
+
+// Agregamos el contexto al builder con el ConStr
+builder.Services.AddDbContextFactory<Contexto>(c => c.UseSqlServer(ConStr));
 
 // Inyeción de servicios a usar
 builder.Services.AddBlazorBootstrap();
