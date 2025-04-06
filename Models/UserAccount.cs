@@ -1,24 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-[Table("user_account")]
+namespace CyH_Techno_Store.Models;
 
 public class UserAccount
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id")]
     public int Id { get; set; }
 
-    [Column("user_name")]
-    [MaxLength(100)]
+    [Required(ErrorMessage = "Debe agregar el nombre de usuario.")]
+    [MaxLength(100, ErrorMessage = "No puede ser mayor a 100 letras.")]
     public string? UserName { get; set; }
 
-    [Column("password")]
-    [MaxLength(100)]
+    [Required(ErrorMessage = "Debe agregar la contraseña.")]
+    [MaxLength(100, ErrorMessage = "No puede ser mayor a 100 letras.")]
     public string? Password { get; set; }
 
-    [Column("role")]
-    [MaxLength(20)]
+    [MaxLength(5)]
     public string? Role { get; set; }
 }
