@@ -2,6 +2,22 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<div class="row">
+    <div class="col-12">
+        <h2 class="fw-bolder">Bienvenido a <span class="text-danger"> CyH Techno Store</span></h2>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <span>No has iniciado ses&iacute;on. Por favor <a class="fw-bolder" href="/login">click aqu&iacute;</a> para iniciar.</span>
+                    </NotAuthorized>
+                    <Authorized>
+                        <span>Has iniciado ses&iacute;on como <b>@context.User.Identity.Name</b>. <a class="fw-bolder" href="/logout">click aqu&iacute;</a> para cerrar.</span>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </div>
+</div>

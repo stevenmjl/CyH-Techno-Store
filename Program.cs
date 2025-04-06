@@ -1,5 +1,6 @@
 using CyH_Techno_Store.Components;
 using CyH_Techno_Store.DAL;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,18 @@ builder.Services.AddDbContextFactory<Contexto>(c => c.UseSqlServer(ConStr));
 // Inyeción de servicios a usar
 builder.Services.AddBlazorBootstrap();
 
+// Servicios para el apartado del Login
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "auth_token";
+        options.LoginPath = "/login";
+        options.Cookie.MaxAge = TimeSpan.FromMinutes(30);
+        options.AccessDeniedPath = "/access-denied";
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,6 +44,8 @@ app.UseHttpsRedirection();
 
 
 app.UseAntiforgery();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
