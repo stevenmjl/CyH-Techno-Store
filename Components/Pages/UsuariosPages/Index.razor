@@ -1,0 +1,149 @@
+﻿@page "/Usuario/Index"
+@rendermode InteractiveServer
+@inject UsuariosService usuariosService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @* Título *@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Consulta de Usuarios</h1>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-2 align-items-end">
+                @* Textos de apoyo *@
+                <div class="row align-items-center">
+                    <div class="col-4 col-md-2">
+                        <label for="Filtro" class="form-label">Filtrar por:</label>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <label for="Busqueda" class="form-label">Búsqueda:</label>
+                    </div>
+                    <div class="col-4 col-md-8 text-end">
+                        <label for="TotalUsuarios" class="form-label">
+                            Total de usuarios: @ListaUsuarios.Count()
+                        </label>
+                    </div>
+                </div>
+
+                @* Selección de filtro *@
+                <div class="col-md-2">
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">ID</option>
+                        <option value="username" selected>Nombre de Usuario</option>
+                        <option value="correo">Correo</option>
+                        <option value="role">Rol</option>
+                    </select>
+                </div>
+
+                @* Filtro de búsqueda *@
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control"
+                               placeholder="Escribir dato" />
+                        <button @onclick="Buscar" class="btn btn-primary" type="button">
+                            <span class="bi bi-search"></span> Buscar
+                        </button>
+                        <button class="btn btn-secondary bi bi-arrow-counterclockwise"
+                                type="button" @onclick="OnInitializedAsync">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                @* Botón crear *@
+                <div class="col-md-2 text-end">
+                    <a href="/Usuario/Create" class="btn btn-success bi bi-plus-circle">
+                        Crear
+                    </a>
+                </div>
+            </div>
+
+            @* Tabla con su lista *@
+            <table class="table table-bordered">
+                <thead class="bg-info text-center text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre de Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Teléfono</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in ListaUsuarios)
+                    {
+                        <tr class="text-center">
+                            <td>@usuario.UsuarioId</td>
+                            <td>@usuario.UserName</td>
+                            <td>@usuario.Correo</td>
+                            <td>@usuario.Role</td>
+                            <td>@usuario.Telefono</td>
+                            <td>
+                                <a href="/Usuario/Edit/@usuario.UsuarioId"
+                                   class="btn btn-warning bi bi-pencil-square"></a>
+                            </td>
+                            <td>
+                                <a href="/Usuario/Delete/@usuario.UsuarioId"
+                                   class="btn btn-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Usuarios> ListaUsuarios = new List<Usuarios>();
+    private string filtro = "username";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaUsuarios = await usuariosService.Listar(e => true);
+        valorFiltro = "";
+    }
+
+    private async Task Buscar()
+    {
+        if (valorFiltro.Trim() != "")
+        {
+            if (filtro == "id" && int.TryParse(valorFiltro, out int usuarioId))
+            {
+                ListaUsuarios = await usuariosService.Listar(u => u.UsuarioId == usuarioId);
+            }
+            else if (filtro == "username")
+            {
+                ListaUsuarios = await usuariosService.Listar(u => u.UserName!
+                    .ToLower()
+                    .Contains(valorFiltro.ToLower()));
+            }
+            else if (filtro == "correo")
+            {
+                ListaUsuarios = await usuariosService.Listar(u => u.Correo!
+                    .ToLower()
+                    .Contains(valorFiltro.ToLower()));
+            }
+            else if (filtro == "role")
+            {
+                ListaUsuarios = await usuariosService.Listar(u => u.Role!
+                    .ToLower()
+                    .Contains(valorFiltro.ToLower()));
+            }
+        }
+        else
+        {
+            ListaUsuarios = await usuariosService.Listar(u => true);
+        }
+    }
+}
