@@ -24,6 +24,11 @@ builder.Services.AddScoped<UsuariosService>();
 builder.Services.AddScoped<ProductosService>();
 builder.Services.AddScoped<FacturasService>();
 builder.Services.AddScoped<DetalleFacturasService>();
+builder.Services.AddScoped<FacturaAdminsService>();
+builder.Services.AddScoped<DetalleFacturaAdminsService>();
+builder.Services.AddScoped<CategoriasService>();
+builder.Services.AddScoped<ProveedoresService>();
+builder.Services.AddScoped<TransaccionesService>();
 builder.Services.AddScoped<CarritoService>();
 
 // Servicios para el apartado del Login
