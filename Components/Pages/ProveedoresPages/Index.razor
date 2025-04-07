@@ -1,0 +1,170 @@
+﻿@page "/Proveedor/Index"
+@rendermode InteractiveServer
+@inject ProveedoresService proveedoresService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Proveedores</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @* Título *@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Consulta de Proveedores</h1>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-2 align-items-end">
+                @* Textos de apoyo *@
+                <div class="row align-items-center">
+                    <div class="col-4 col-md-2">
+                        <label for="Filtro" class="form-label">Filtrar por:</label>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <label for="Busqueda" class="form-label">B&uacute;squeda:</label>
+                    </div>
+                    <div class="col-4 col-md-8 text-end">
+                        <label for="TotalProveedores" class="form-label">
+                            Total de proveedores: @ListaProveedores.Count()
+                        </label>
+                    </div>
+                </div>
+
+                @* Selección de filtro *@
+                <div class="col-md-2">
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">ID</option>
+                        <option value="rnc">RNC</option>
+                        <option value="nombres" selected>Nombres</option>
+                        <option value="correo">Correo</option>
+                    </select>
+                </div>
+
+                @* Filtro de búsqueda *@
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control"
+                               placeholder="Escribir dato" @oninput="HandleInput" />
+                        <button @onclick="Buscar" class="btn btn-primary" type="button">
+                            <span class="bi bi-search"></span> Buscar
+                        </button>
+                        <button class="btn btn-secondary bi bi-arrow-counterclockwise"
+                                type="button" @onclick="Limpiar">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                @* Botón crear *@
+                <div class="col-md-2 text-end">
+                    <a href="/Proveedor/Create" class="btn btn-success bi bi-plus-circle">
+                        Crear
+                    </a>
+                </div>
+            </div>
+
+            @* Tabla con su lista *@
+            <table class="table table-bordered">
+                <thead class="bg-info text-center text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombres</th>
+                        <th>RNC</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Fecha Registro</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var proveedor in ListaProveedores)
+                    {
+                        <tr class="text-center">
+                            <td>@proveedor.ProveedorId</td>
+                            <td>@proveedor.Nombres</td>
+                            <td>@proveedor.RNC</td>
+                            <td>@proveedor.Correo</td>
+                            <td>@proveedor.Telefono</td>
+                            <td>@proveedor.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a href="/Proveedor/Edit/@proveedor.ProveedorId"
+                                   class="btn btn-warning bi bi-pencil-square"></a>
+                            </td>
+                            <td>
+                                <a href="/Proveedor/Delete/@proveedor.ProveedorId"
+                                   class="btn btn-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Proveedores> ListaProveedores = new List<Proveedores>();
+    private string filtro = "nombres";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProveedores();
+    }
+
+    private async Task CargarProveedores()
+    {
+        ListaProveedores = await proveedoresService.Listar(null);
+    }
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        valorFiltro = e.Value?.ToString() ?? "";
+    }
+
+    private async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            await CargarProveedores();
+            return;
+        }
+
+        switch (filtro)
+        {
+            case "id" when int.TryParse(valorFiltro, out int proveedorId):
+                ListaProveedores = await proveedoresService.Listar(
+                    p => p.ProveedorId == proveedorId);
+                break;
+
+            case "rnc":
+                ListaProveedores = await proveedoresService.Listar(
+                    p => p.RNC!.Contains(valorFiltro));
+                break;
+
+            case "nombres":
+                ListaProveedores = await proveedoresService.Listar(
+                    p => p.Nombres!.ToLower().Contains(valorFiltro.ToLower()));
+                break;
+
+            case "correo":
+                ListaProveedores = await proveedoresService.Listar(
+                    p => p.Correo!.ToLower().Contains(valorFiltro.ToLower()));
+                break;
+
+            default:
+                await CargarProveedores();
+                break;
+        }
+    }
+
+    private async Task Limpiar()
+    {
+        valorFiltro = "";
+        filtro = "nombres";
+        await CargarProveedores();
+    }
+}
