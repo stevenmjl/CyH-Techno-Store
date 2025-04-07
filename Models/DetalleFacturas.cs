@@ -25,5 +25,5 @@ public class DetalleFacturas
     public decimal PrecioUnitario { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
-    public decimal Subtotal => Cantidad * PrecioUnitario;
+    public decimal Subtotal { get; set; }
 }
