@@ -67,15 +67,21 @@ public class CategoriasService(IDbContextFactory<Contexto> dbFactory)
             .ExecuteDeleteAsync() > 0;
     }
 
-    public async Task<List<Categoria>> Listar(Expression<Func<Categoria, bool>>? criterio = null)
+    public async Task<List<Categoria>> Listar(Expression<Func<Categoria, bool>> criterio,
+    bool incluirProductos = false)
     {
         await using var contexto = await dbFactory.CreateDbContextAsync();
         var query = contexto.Categorias.AsQueryable();
 
-        if (criterio != null)
-            query = query.Where(criterio);
+        if (incluirProductos)
+        {
+            query = query.Include(c => c.Productos);
+        }
 
-        return await query.ToListAsync();
+        return await query
+            .Where(criterio)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<int> UltimoId()
