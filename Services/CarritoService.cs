@@ -1,57 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using CyH_Techno_Store.DAL;
-using CyH_Techno_Store.Models;
+﻿using CyH_Techno_Store.Models;
+using CyH_Techno_Store.Services;
+using System.Collections.Concurrent;
 
 public class CarritoService
 {
-    private readonly List<ItemCarrito> _items = new();
-    private readonly Contexto _contexto;
+    private readonly ConcurrentDictionary<int, ItemCarrito> _items = new();
 
-    public CarritoService(Contexto contexto)
-    {
-        _contexto = contexto;
-    }
-
-    public IEnumerable<ItemCarrito> Items => _items;
+    public IEnumerable<ItemCarrito> Items => _items.Values;
+    public decimal Total => _items.Values.Sum(i => i.Precio * i.Cantidad);
+    public int CantidadItems => _items.Values.Sum(i => i.Cantidad);
+    public bool TieneItems => _items.Any();
 
     public void AgregarProducto(Productos producto, int cantidad = 1)
     {
-        var itemExistente = _items.FirstOrDefault(i => i.ProductoId == producto.ProductoId);
+        if (producto == null) throw new ArgumentNullException(nameof(producto));
+        if (cantidad <= 0) throw new ArgumentOutOfRangeException(nameof(cantidad));
 
-        if (itemExistente != null)
-        {
-            itemExistente.Cantidad += cantidad;
-        }
-        else
-        {
-            _items.Add(new ItemCarrito
+        _items.AddOrUpdate(
+            producto.ProductoId,
+            _ => new ItemCarrito
             {
                 ProductoId = producto.ProductoId,
                 Nombre = producto.Nombre,
                 Precio = producto.PrecioUnitario,
                 Cantidad = cantidad,
-                ImagenUrl = producto.ImagenUrl
+                ImagenUrl = producto.ImagenUrl,
+                StockDisponible = producto.Stock
+            },
+            (_, itemExistente) =>
+            {
+                itemExistente.Cantidad += cantidad;
+                return itemExistente;
             });
-        }
     }
 
-    public void EliminarProducto(int productoId)
+    public bool EliminarProducto(int productoId)
     {
-        var item = _items.FirstOrDefault(i => i.ProductoId == productoId);
-        if (item != null)
-        {
-            _items.Remove(item);
-        }
+        return _items.TryRemove(productoId, out _);
     }
 
-    public void ActualizarCantidad(int productoId, int nuevaCantidad)
+    public bool ActualizarCantidad(int productoId, int nuevaCantidad)
     {
-        var item = _items.FirstOrDefault(i => i.ProductoId == productoId);
-        if (item != null)
+        if (nuevaCantidad <= 0)
+            return EliminarProducto(productoId);
+
+        if (_items.TryGetValue(productoId, out var item))
         {
             item.Cantidad = nuevaCantidad;
+            return true;
         }
+        return false;
     }
 
     public void LimpiarCarrito()
@@ -59,16 +57,54 @@ public class CarritoService
         _items.Clear();
     }
 
-    public decimal Total => _items.Sum(i => i.Precio * i.Cantidad);
+    public bool DisminuirCantidad(int productoId, int cantidad = 1)
+    {
+        if (_items.TryGetValue(productoId, out var item))
+        {
+            var nuevaCantidad = item.Cantidad - cantidad;
+            if (nuevaCantidad <= 0)
+                return EliminarProducto(productoId);
 
-    public int CantidadItems => _items.Sum(i => i.Cantidad);
+            item.Cantidad = nuevaCantidad;
+            return true;
+        }
+        return false;
+    }
+
+    public bool AumentarCantidad(int productoId, int cantidad = 1, int? maxStock = null)
+    {
+        if (_items.TryGetValue(productoId, out var item))
+        {
+            if (maxStock.HasValue && item.Cantidad + cantidad > maxStock)
+                return false;
+
+            item.Cantidad += cantidad;
+            return true;
+        }
+        return false;
+    }
+
+    public async Task<bool> VerificarDisponibilidad(ProductosService productosService)
+    {
+        foreach (var item in _items.Values)
+        {
+            var productoBD = await productosService.Buscar(item.ProductoId);
+            if (productoBD == null || item.Cantidad > productoBD.Stock)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 public class ItemCarrito
 {
     public int ProductoId { get; set; }
-    public string Nombre { get; set; }
+    public required string Nombre { get; set; }
     public decimal Precio { get; set; }
     public int Cantidad { get; set; }
-    public string ImagenUrl { get; set; }
+    public string? ImagenUrl { get; set; }
+    public int StockDisponible { get; set; }
 }
