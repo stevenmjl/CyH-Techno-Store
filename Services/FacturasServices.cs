@@ -2,144 +2,229 @@
 using CyH_Techno_Store.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Microsoft.Extensions.Logging;
 
 namespace CyH_Techno_Store.Services;
 
-public class FacturasService
+public class FacturasService(IDbContextFactory<Contexto> dbFactory, TransaccionesService transaccionesService)
 {
-    private readonly IDbContextFactory<Contexto> _dbFactory;
-    private readonly ILogger<FacturasService> _logger;
-
-    public FacturasService(IDbContextFactory<Contexto> dbFactory, ILogger<FacturasService> logger)
+    private async Task<bool> Existe(int facturaId)
     {
-        _dbFactory = dbFactory;
-        _logger = logger;
-    }
-
-    private async Task<bool> Existe(int facturasId)
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-        return await contexto.Facturas.AnyAsync(f => f.FacturaId == facturasId);
-    }
-
-    public async Task<bool> Existe(DateTime fecha, int usuarioId)
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await dbFactory.CreateDbContextAsync();
         return await contexto.Facturas
-           .AnyAsync(f => f.FechaRegistro.Date == fecha.Date && f.UsuarioId == usuarioId);
+            .AnyAsync(f => f.FacturaId == facturaId);
     }
 
-    public async Task<int> Insertar(Facturas factura)
+    private async Task<bool> ValidarStockDisponible(Facturas factura)
     {
-        _logger.LogInformation("Insertando nueva factura");
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await dbFactory.CreateDbContextAsync();
 
-        contexto.Facturas.Add(factura);
-        await contexto.SaveChangesAsync();
-        return factura.FacturaId;
+        foreach (var detalle in factura.DetalleFacturas)
+        {
+            var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+            if (producto == null || producto.Stock < detalle.Cantidad)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private async Task<bool> Insertar(Facturas factura)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+
+        try
+        {
+            // Validar stock antes de proceder
+            if (!await ValidarStockDisponible(factura))
+                return false;
+
+            contexto.Facturas.Add(factura);
+            await contexto.SaveChangesAsync();
+
+            foreach (var detalle in factura.DetalleFacturas)
+            {
+                var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock -= detalle.Cantidad;
+                }
+            }
+
+            var transaccion = new Transacciones
+            {
+                Monto = factura.DetalleFacturas.Sum(d => d.Subtotal),
+                FechaRegistro = DateTime.Now,
+                Tipo = "Ingreso",
+                FacturaId = factura.FacturaId,
+                Facturas = factura
+            };
+
+            await transaccionesService.RegistrarTransaccion(transaccion);
+
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private async Task<bool> Modificar(Facturas factura)
     {
-        _logger.LogInformation("Modificando factura existente");
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await dbFactory.CreateDbContextAsync();
 
-        contexto.Update(factura);
-        return await contexto.SaveChangesAsync() > 0;
+        try
+        {
+            // Validar nuevo stock
+            if (!await ValidarStockDisponible(factura))
+                return false;
+
+            // Obtener detalles antiguos
+            var detallesAnteriores = await contexto.DetalleFacturas
+                .Where(d => d.FacturaId == factura.FacturaId)
+                .ToListAsync();
+
+            // Revertir stock de detalles anteriores
+            foreach (var detalle in detallesAnteriores)
+            {
+                var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock += detalle.Cantidad;
+                }
+            }
+
+            // Actualizar factura
+            contexto.Facturas.Update(factura);
+            await contexto.SaveChangesAsync();
+
+            // Aplicar nuevos detalles (disminuir stock)
+            foreach (var detalle in factura.DetalleFacturas)
+            {
+                var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock -= detalle.Cantidad;
+                }
+            }
+
+            // Actualizar transacción
+            await transaccionesService.EliminarTransaccion(factura.FacturaId);
+
+            var nuevaTransaccion = new Transacciones
+            {
+                Monto = factura.DetalleFacturas.Sum(d => d.Subtotal),
+                FechaRegistro = DateTime.Now,
+                Tipo = "Ingreso",
+                FacturaId = factura.FacturaId,
+                Facturas = factura
+            };
+
+            await transaccionesService.RegistrarTransaccion(nuevaTransaccion);
+
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    public async Task<int> Guardar(Facturas factura)
+    public async Task<bool> Guardar(Facturas factura)
     {
         if (!await Existe(factura.FacturaId))
-        {
             return await Insertar(factura);
-        }
         else
-        {
-            await using var contexto = await _dbFactory.CreateDbContextAsync();
-            contexto.Update(factura);
-            await contexto.SaveChangesAsync();
-            return factura.FacturaId;
-        }
+            return await Modificar(factura);
     }
 
-    public async Task<Facturas?> Buscar(int facturasId)
+    public async Task<Facturas?> Buscar(int facturaId)
     {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await dbFactory.CreateDbContextAsync();
         return await contexto.Facturas
-            .Include(f => f.Usuarios)
             .Include(f => f.DetalleFacturas)
                 .ThenInclude(d => d.Productos)
-            .FirstOrDefaultAsync(f => f.FacturaId == facturasId);
-    }
-
-    public async Task<bool> Eliminar(int facturasId)
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-
-        await contexto.DetalleFacturas
-            .Where(d => d.FacturaId == facturasId)
-            .ExecuteDeleteAsync();
-
-
-        return await contexto.Facturas
-            .Where(f => f.FacturaId == facturasId)
-            .ExecuteDeleteAsync() > 0;
-    }
-
-    public async Task<List<Facturas>> Listar(Expression<Func<Facturas, bool>> criterio)
-    {
-        _logger.LogInformation("Listando facturas");
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-        return await contexto.Facturas
             .Include(f => f.Usuarios)
-            .Where(criterio)
-            .AsNoTracking()
-            .ToListAsync();
+            .FirstOrDefaultAsync(f => f.FacturaId == facturaId);
     }
 
+    public async Task<bool> Eliminar(int facturaId)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+
+        try
+        {
+            // Revertir stock (aumentar)
+            var detalles = await contexto.DetalleFacturas
+                .Where(d => d.FacturaId == facturaId)
+                .ToListAsync();
+
+            foreach (var detalle in detalles)
+            {
+                var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock += detalle.Cantidad;
+                }
+            }
+
+            // Eliminar transacción asociada
+            await transaccionesService.EliminarTransaccion(facturaId);
+
+            // Eliminar factura
+            await contexto.Facturas
+                .Where(f => f.FacturaId == facturaId)
+                .ExecuteDeleteAsync();
+
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<List<Facturas>> Listar(
+        Expression<Func<Facturas, bool>>? criterio = null,
+        bool incluirDetalles = false)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+
+        var query = contexto.Facturas.AsQueryable();
+
+        if (incluirDetalles)
+        {
+            query = query
+                .Include(f => f.DetalleFacturas)
+                .Include(f => f.Usuarios);
+        }
+
+        if (criterio != null)
+            query = query.Where(criterio);
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<decimal> CalcularTotalFactura(int facturaId)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+        return await contexto.DetalleFacturas
+            .Where(d => d.FacturaId == facturaId)
+            .SumAsync(d => d.Subtotal);
+    }
 
     public async Task<List<Facturas>> ListarPorUsuario(int usuarioId)
     {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await dbFactory.CreateDbContextAsync();
         return await contexto.Facturas
             .Where(f => f.UsuarioId == usuarioId)
             .Include(f => f.DetalleFacturas)
-            .AsNoTracking()
+                .ThenInclude(d => d.Productos)
+            .OrderByDescending(f => f.FechaRegistro)
             .ToListAsync();
-    }
-
-    public async Task<List<Facturas>> ListarPorFecha(DateTime fecha)
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-        return await contexto.Facturas
-            .Where(f => f.FechaRegistro.Date == fecha.Date)
-            .Include(f => f.Usuarios)
-            .AsNoTracking()
-            .ToListAsync();
-    }
-
-    public async Task<decimal> ObtenerTotalVentasHoy()
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-
-        // Obtener todas las facturas del día
-        var facturasHoy = await contexto.Facturas
-            .Where(f => f.FechaRegistro.Date == DateTime.Today)
-            .Select(f => f.FacturaId)
-            .ToListAsync();
-
-        if (!facturasHoy.Any())
-        {
-            return 0;
-        }
-
-        // Calcular el total sumando los subtotales de los detalles
-        var totalVentas = await contexto.DetalleFacturas
-            .Where(d => facturasHoy.Contains(d.FacturaId))
-            .SumAsync(d => d.Cantidad * d.PrecioUnitario);
-
-        return totalVentas;
     }
 }
