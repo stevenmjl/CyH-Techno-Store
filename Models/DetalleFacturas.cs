@@ -1,25 +1,19 @@
-﻿using CyH_Techno_Store.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CyH_Techno_Store.Models;
-
-public class DetalleFacturass
+public class DetalleFacturas
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int DetalleId { get; set; }
-    public int FacturasId { get; set; }
+    public int DetalleFacturaId { get; set; }
 
-    [ForeignKey("FacturasId")]
-    public virtual Facturass Facturas { get; set; }
-
+    [Required(ErrorMessage = "Debe agregar el ID de la factura")]
+    public int FacturaId { get; set; }
+    public Facturas? Facturas { get; set; }
 
     [Required(ErrorMessage = "El Productos es obligatorio")]
-    public int ProductosId { get; set; }
-
-    [ForeignKey("ProductosId")]
-    public virtual Productoss Productos { get; set; }
+    public int ProductoId { get; set; }
+    public Productos? Productos { get; set; }
 
     [Required(ErrorMessage = "La cantidad es obligatoria")]
     [Range(1, int.MaxValue, ErrorMessage = "La cantidad mínima es 1")]
@@ -29,7 +23,6 @@ public class DetalleFacturass
     [Column(TypeName = "decimal(18,2)")]
     [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser mayor a 0")]
     public decimal PrecioUnitario { get; set; }
-
 
     [Column(TypeName = "decimal(18,2)")]
     public decimal Subtotal => Cantidad * PrecioUnitario;

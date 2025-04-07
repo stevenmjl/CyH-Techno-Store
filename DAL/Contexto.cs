@@ -7,35 +7,39 @@ public class Contexto : DbContext
 {
     public Contexto(DbContextOptions<Contexto> options) : base(options) { }
 
-    // 1. Usa nombres pluralizados consistentemente para DbSet
-    public DbSet<UserAccounts> UserAccountss { get; set; } // Cambiado a plural
-    public DbSet<Productoss> Productoss { get; set; } // Asumiendo que el modelo se llama Productos
-    public DbSet<Facturass> Facturass { get; set; } // Asumiendo que el modelo se llama Facturas
-    public DbSet<DetalleFacturass> DetallesFacturas { get; set; } // Cambiado a plural
+    public DbSet<Usuarios> Usuarios { get; set; }
+    public DbSet<Productos> Productos { get; set; }
+    public DbSet<Facturas> Facturas { get; set; }
+    public DbSet<DetalleFacturas> DetalleFacturas { get; set; }
+    public DbSet<FacturaAdmins> FacturaAdmins { get; set; }
+    public DbSet<DetalleFacturaAdmins> DetalleFacturaAdmins { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
+    public DbSet<Proveedores> Proveedores { get; set; }
+    public DbSet<Transacciones> Transacciones { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 2. Configuración correcta del nombre de tabla y relaciones
-        modelBuilder.Entity<UserAccounts>().ToTable("UserAccountss"); // Nombre explícito de tabla
-
-        // 3. Configuración de HasData correcta
-        modelBuilder.Entity<UserAccounts>().HasData(
-            new UserAccounts
+        // Configuración inicial de usuarios
+        modelBuilder.Entity<Usuarios>().ToTable("Usuarios");
+        modelBuilder.Entity<Usuarios>().HasData(
+            new Usuarios
             {
-                Id = 1,
+                UsuarioId = 1,
                 UserName = "Administrador",
                 Password = "Qwe123...",
+                Correo = "Admin@gmail.com",
                 NumeroTarjeta = "1234567891456978524",
                 FechaRegistro = new DateTime(2020, 3, 4),
                 Telefono = "8094627895",
                 Direccion = "calle 18",
                 Role = "Admin"
             },
-            new UserAccounts
+            new Usuarios
             {
-                Id = 2,
+                UsuarioId = 2,
                 UserName = "Usuario",
                 Password = "Asd123...",
+                Correo = "User@gmail.com",
                 NumeroTarjeta = "999999999999999999",
                 FechaRegistro = new DateTime(2025, 2, 1),
                 Telefono = "8094627111",
@@ -44,18 +48,74 @@ public class Contexto : DbContext
             }
         );
 
-      
-        modelBuilder.Entity<UserAccounts>()
-       .HasMany(u => u.Facturass)
-       .WithOne(f => f.Usuario)
-       .HasForeignKey(f => f.UsuarioId);
+        // Relaciones de Usuarios
+        modelBuilder.Entity<Usuarios>()
+            .HasMany(u => u.Facturas)
+            .WithOne(f => f.Usuarios)
+            .HasForeignKey(f => f.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Facturass>()
-        .HasMany(f => f.Detalles)
-        .WithOne(d => d.Facturas)
-        .HasForeignKey(d => d.FacturasId)
-        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Usuarios>()
+            .HasMany(u => u.FacturasAdmin)
+            .WithOne(f => f.Usuarios)
+            .HasForeignKey(f => f.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        base.OnModelCreating(modelBuilder);
+        // Relaciones de Facturas
+        modelBuilder.Entity<Facturas>()
+            .HasMany(f => f.DetalleFacturas)
+            .WithOne(d => d.Facturas)
+            .HasForeignKey(d => d.FacturaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Relaciones de FacturaAdmins
+        modelBuilder.Entity<FacturaAdmins>()
+            .HasMany(f => f.DetalleFacturaAdmin)
+            .WithOne(d => d.FacturaAdmins)
+            .HasForeignKey(d => d.FacturaAdminId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FacturaAdmins>()
+            .HasOne(f => f.Proveedores)
+            .WithMany(p => p.FacturaAdmin)
+            .HasForeignKey(f => f.ProveedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Relaciones de Productos
+        modelBuilder.Entity<Productos>()
+            .HasOne(p => p.Categoria)
+            .WithMany(c => c.Productos)
+            .HasForeignKey(p => p.CategoriaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Productos>()
+            .HasMany(p => p.DetalleFactura)
+            .WithOne(d => d.Productos)
+            .HasForeignKey(d => d.ProductoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Productos>()
+            .HasMany(p => p.DetalleFacturaAdmin)
+            .WithOne(d => d.Productos)
+            .HasForeignKey(d => d.ProductoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Relaciones de Transacciones
+        modelBuilder.Entity<Transacciones>()
+            .HasOne(t => t.Facturas)
+            .WithMany()
+            .HasForeignKey(t => t.FacturaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Transacciones>()
+            .HasOne(t => t.FacturaAdmins)
+            .WithMany()
+            .HasForeignKey(t => t.FacturaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configuración de nombres de tablas
+        modelBuilder.Entity<DetalleFacturas>().ToTable("DetalleFacturas");
+        modelBuilder.Entity<DetalleFacturaAdmins>().ToTable("DetalleFacturaAdmins");
+        modelBuilder.Entity<Transacciones>().ToTable("Transacciones");
     }
 }
