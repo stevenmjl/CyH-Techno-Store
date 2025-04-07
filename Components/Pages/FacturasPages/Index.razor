@@ -1,0 +1,224 @@
+﻿@page "/Factura/Index"
+@rendermode InteractiveServer
+@inject FacturasService facturasService
+@inject DetalleFacturasService detalleService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Facturas</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @* Título *@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Consulta de Facturas</h1>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-2 align-items-end">
+                @* Textos de apoyo *@
+                <div class="row align-items-center">
+                    <div class="col-4 col-md-2">
+                        <label for="Filtro" class="form-label">Filtrar por:</label>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <label for="Busqueda" class="form-label">Búsqueda:</label>
+                    </div>
+                    <div class="col-4 col-md-8 text-end">
+                        <label for="TotalFacturas" class="form-label">
+                            Total de facturas: @ListaFacturas.Count()
+                        </label>
+                    </div>
+                </div>
+
+                @* Selección de filtro *@
+                <div class="col-md-2">
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">ID Factura</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="fecha" selected>Fecha</option>
+                        <option value="total">Total</option>
+                    </select>
+                </div>
+
+                @* Filtro de búsqueda *@
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control"
+                               placeholder="Escribir dato" @oninput="HandleInput" />
+                        <button @onclick="Buscar" class="btn btn-primary" type="button">
+                            <span class="bi bi-search"></span> Buscar
+                        </button>
+                        <button class="btn btn-secondary bi bi-arrow-counterclockwise"
+                                type="button" @onclick="Limpiar">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                @* Botón crear *@
+                <div class="col-md-2 text-end">
+                    <a href="/Factura/Create" class="btn btn-success bi bi-plus-circle">
+                        Nueva Factura
+                    </a>
+                </div>
+            </div>
+
+            @* Tabla de facturas *@
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-info text-center text-white">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var factura in ListaFacturas)
+                        {
+                            <tr class="text-center" style="cursor:pointer" @onclick="() => ToggleDetalles(factura.FacturaId)">
+                                <td>@factura.FacturaId</td>
+                                <td>@factura.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@factura.Usuarios?.UserName</td>
+                                <td>@factura.DetalleFacturas.Sum(d => d.Subtotal).ToString("C2")</td>
+                                <td>
+                                    <a href="/Factura/Edit/@factura.FacturaId" class="btn btn-warning bi bi-pencil-square me-1"></a>
+                                    <button @onclick="() => EliminarFactura(factura.FacturaId)" class="btn btn-danger bi bi-trash"></button>
+                                </td>
+                            </tr>
+                            
+                            @if (facturasExpandidas.Contains(factura.FacturaId))
+                            {
+                                <tr>
+                                    <td colspan="5" class="p-0">
+                                        <div class="m-2 p-2 border rounded bg-light">
+                                            <h6 class="fw-bold">Detalles de Factura</h6>
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr class="table-secondary">
+                                                        <th>Producto</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Precio Unitario</th>
+                                                        <th>Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var detalle in factura.DetalleFacturas)
+                                                    {
+                                                        <tr>
+                                                            <td>@detalle.Productos?.Nombre</td>
+                                                            <td class="text-end">@detalle.Cantidad</td>
+                                                            <td class="text-end">@detalle.PrecioUnitario.ToString("C2")</td>
+                                                            <td class="text-end fw-bold">@detalle.Subtotal.ToString("C2")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="table-primary">
+                                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                                        <td class="text-end fw-bold">@factura.DetalleFacturas.Sum(d => d.Subtotal).ToString("C2")</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Facturas> ListaFacturas = new List<Facturas>();
+    private HashSet<int> facturasExpandidas = new HashSet<int>();
+    private string filtro = "fecha";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarFacturas();
+    }
+
+    private async Task CargarFacturas()
+    {
+        ListaFacturas = await facturasService.Listar(null, true);
+    }
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        valorFiltro = e.Value?.ToString() ?? "";
+    }
+
+    private async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            await CargarFacturas();
+            return;
+        }
+
+        switch (filtro)
+        {
+            case "id" when int.TryParse(valorFiltro, out int facturaId):
+                ListaFacturas = await facturasService.Listar(
+                    f => f.FacturaId == facturaId, true);
+                break;
+                
+            case "usuario":
+                ListaFacturas = await facturasService.Listar(
+                    f => f.Usuarios!.UserName!.ToLower().Contains(valorFiltro.ToLower()), true);
+                break;
+                
+            case "fecha" when DateTime.TryParse(valorFiltro, out DateTime fecha):
+                ListaFacturas = await facturasService.Listar(
+                    f => f.FechaRegistro.Date == fecha.Date, true);
+                break;
+                
+            case "total" when decimal.TryParse(valorFiltro, out decimal total):
+                ListaFacturas = await facturasService.Listar(
+                    f => f.DetalleFacturas.Sum(d => d.Subtotal) == total, true);
+                break;
+                
+            default:
+                await CargarFacturas();
+                break;
+        }
+    }
+
+    private async Task Limpiar()
+    {
+        valorFiltro = "";
+        filtro = "fecha";
+        facturasExpandidas.Clear();
+        await CargarFacturas();
+    }
+
+    private void ToggleDetalles(int facturaId)
+    {
+        if (facturasExpandidas.Contains(facturaId))
+        {
+            facturasExpandidas.Remove(facturaId);
+        }
+        else
+        {
+            facturasExpandidas.Add(facturaId);
+        }
+    }
+
+    private async Task EliminarFactura(int facturaId)
+    {
+        if (await facturasService.Eliminar(facturaId))
+        {
+            await CargarFacturas();
+        }
+    }
+}
