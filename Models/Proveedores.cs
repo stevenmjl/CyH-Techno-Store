@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace CyH_Techno_Store.Models;
-
 public class Proveedores
 {
     [Key]
@@ -22,7 +21,7 @@ public class Proveedores
     ErrorMessage = "El nombre no debe contener números ni caracteres especiales.")]
     [StringLength(50, MinimumLength = 6,
     ErrorMessage = "El nombre debe tener entre 6 y 50 caracteres.")]
-    public string? Nombre { get; set; }
+    public string? Nombres { get; set; }
 
     [DataType(DataType.DateTime)]
     public DateTime FechaRegistro { get; set; }
@@ -32,4 +31,6 @@ public class Proveedores
     ErrorMessage = "Formato internacional: +123456789")]
     [StringLength(15, MinimumLength = 8)]
     public string? Telefono { get; set; }
+
+    public ICollection<FacturaAdmins> FacturaAdmin { get; set; } = new List<FacturaAdmins>();
 }
