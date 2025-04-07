@@ -1,0 +1,176 @@
+﻿@page "/Producto/Index"
+@rendermode InteractiveServer
+@inject ProductosService productosService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,User")]
+
+<PageTitle>Productos</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @* Título *@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Consulta de Productos</h1>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-2 align-items-end">
+                @* Textos de apoyo *@
+                <div class="row align-items-center">
+                    <div class="col-4 col-md-2">
+                        <label for="Filtro" class="form-label">Filtrar por:</label>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <label for="Busqueda" class="form-label">B&uacute;squeda:</label>
+                    </div>
+                    <div class="col-4 col-md-8 text-end">
+                        <label for="TotalProductos" class="form-label">
+                            Total de productos: @ListaProductos.Count()
+                        </label>
+                    </div>
+                </div>
+
+                @* Selección de filtro *@
+                <div class="col-md-2">
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">ID</option>
+                        <option value="nombre" selected>Nombre</option>
+                        <option value="categoria">Categoría</option>
+                        <option value="stock">Stock bajo</option>
+                    </select>
+                </div>
+
+                @* Filtro de búsqueda *@
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control"
+                               placeholder="Escribir dato" @oninput="HandleInput" />
+                        <button @onclick="Buscar" class="btn btn-primary" type="button">
+                            <span class="bi bi-search"></span> Buscar
+                        </button>
+                        <button class="btn btn-secondary bi bi-arrow-counterclockwise"
+                                type="button" @onclick="Limpiar">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                @* Botón crear *@
+                <div class="col-md-2 text-end">
+                    <a href="/Producto/Create" class="btn btn-success bi bi-plus-circle">
+                        Crear
+                    </a>
+                </div>
+            </div>
+
+            @* Tabla con su lista *@
+            <table class="table table-bordered">
+                <thead class="bg-info text-center text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio Unitario</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        <th>Fecha Registro</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in ListaProductos)
+                    {
+                        <tr class="text-center">
+                            <td>@producto.ProductoId</td>
+                            <td>@producto.Nombre</td>
+                            <td>@producto.PrecioUnitario.ToString("C2")</td>
+                            <td class="@(producto.Stock <= 3 ? "text-danger fw-bold" : "")">@producto.Stock</td>
+                            <td>@producto.Categoria?.Nombre</td>
+                            <td>@producto.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a href="/Producto/Edit/@producto.ProductoId"
+                                   class="btn btn-warning bi bi-pencil-square"></a>
+                            </td>
+                            <td>
+                                <a href="/Producto/Delete/@producto.ProductoId"
+                                   class="btn btn-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Productos> ListaProductos = new List<Productos>();
+    private string filtro = "nombre";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos(bool incluirRelaciones = true)
+    {
+        ListaProductos = await productosService.Listar(p => true, incluirRelaciones);
+    }
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        valorFiltro = e.Value?.ToString() ?? "";
+    }
+
+    private async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro) && filtro != "stock")
+        {
+            await CargarProductos();
+            return;
+        }
+
+        switch (filtro)
+        {
+            case "id" when int.TryParse(valorFiltro, out int productoId):
+                ListaProductos = await productosService.Listar(
+                    p => p.ProductoId == productoId, true);
+                break;
+
+            case "nombre":
+                ListaProductos = await productosService.Listar(
+                    p => p.Nombre!.ToLower().Contains(valorFiltro.ToLower()), true);
+                break;
+
+            case "categoria":
+                ListaProductos = await productosService.Listar(
+                    p => p.Categoria!.Nombre!.ToLower().Contains(valorFiltro.ToLower()), true);
+                break;
+
+            case "stock":
+                if (int.TryParse(valorFiltro, out int nivelAlerta))
+                {
+                    ListaProductos = await productosService.ListarConStockBajo(nivelAlerta);
+                }
+                else
+                {
+                    ListaProductos = await productosService.ListarConStockBajo();
+                }
+                break;
+
+            default:
+                await CargarProductos();
+                break;
+        }
+    }
+
+    private async Task Limpiar()
+    {
+        valorFiltro = "";
+        filtro = "nombre";
+        await CargarProductos();
+    }
+}
