@@ -1,0 +1,146 @@
+﻿@page "/Categoria/Index"
+@rendermode InteractiveServer
+@inject CategoriasService categoriasService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Categor&iacute;as</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @* Título *@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Consulta de Categor&iacute;as</h1>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-2 align-items-end">
+                @* Textos de apoyo *@
+                <div class="row align-items-center">
+                    <div class="col-4 col-md-2">
+                        <label for="Filtro" class="form-label">Filtrar por:</label>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <label for="Busqueda" class="form-label">Búsqueda:</label>
+                    </div>
+                    <div class="col-4 col-md-8 text-end">
+                        <label for="TotalCategorias" class="form-label">
+                            Total de categor&iacute;as: @ListaCategorias.Count()
+                        </label>
+                    </div>
+                </div>
+
+                @* Selección de filtro *@
+                <div class="col-md-2">
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">ID</option>
+                        <option value="nombre" selected>Nombre</option>
+                        <option value="descripcion">Descripci&oacute;n</option>
+                    </select>
+                </div>
+
+                @* Filtro de búsqueda *@
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control"
+                               placeholder="Escribir dato" />
+                        <button @onclick="Buscar" class="btn btn-primary" type="button">
+                            <span class="bi bi-search"></span> Buscar
+                        </button>
+                        <button class="btn btn-secondary bi bi-arrow-counterclockwise"
+                                type="button" @onclick="OnInitializedAsync">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                @* Botón crear *@
+                <div class="col-md-2 text-end">
+                    <a href="/Categoria/Create" class="btn btn-success bi bi-plus-circle">
+                        Crear
+                    </a>
+                </div>
+            </div>
+
+            @* Tabla con su lista *@
+            <table class="table table-bordered">
+                <thead class="bg-info text-center text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Productos Asociados</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var categoria in ListaCategorias)
+                    {
+                        <tr class="text-center">
+                            <td>@categoria.CategoriaId</td>
+                            <td>@categoria.Nombre</td>
+                            <td>@categoria.Descripcion</td>
+                            <td>@categoria.Productos.Count</td>
+                            <td>
+                                <a href="/Categoria/Edit/@categoria.CategoriaId"
+                                   class="btn btn-warning bi bi-pencil-square"></a>
+                            </td>
+                            <td>
+                                <a href="/Categoria/Delete/@categoria.CategoriaId"
+                                   class="btn btn-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Categoria> ListaCategorias = new List<Categoria>();
+    private string filtro = "nombre";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCategorias();
+    }
+
+    private async Task CargarCategorias()
+    {
+        ListaCategorias = await categoriasService.Listar(e => true, true); // true para incluir productos
+        valorFiltro = "";
+    }
+
+    private async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            await CargarCategorias();
+            return;
+        }
+
+        switch (filtro)
+        {
+            case "id" when int.TryParse(valorFiltro, out int categoriaId):
+                ListaCategorias = await categoriasService.Listar(
+                    c => c.CategoriaId == categoriaId, true);
+                break;
+            case "nombre":
+                ListaCategorias = await categoriasService.Listar(
+                    c => c.Nombre!.ToLower().Contains(valorFiltro.ToLower()), true);
+                break;
+            case "descripcion":
+                ListaCategorias = await categoriasService.Listar(
+                    c => c.Descripcion!.ToLower().Contains(valorFiltro.ToLower()), true);
+                break;
+            default:
+                await CargarCategorias();
+                break;
+        }
+    }
+}
