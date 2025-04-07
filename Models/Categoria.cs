@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CyH_Techno_Store.Models;
-
 public class Categoria
 {
     [Key]
@@ -23,5 +22,5 @@ public class Categoria
     public string? Descripcion { get; set; }
 
     [ForeignKey("CategoriaId")]
-    public ICollection<Productoss> Productos { get; set; } = new List<Productoss>();
+    public ICollection<Productos> Productos { get; set; } = new List<Productos>();
 }
