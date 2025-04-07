@@ -4,26 +4,38 @@
 @inject CarritoService CarritoService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject FacturasService facturasService
-@inject DetalleFacturasService detalleFacturasService
+@inject FacturasService FacturasService
+@inject DetalleFacturasService DetalleFacturasService
+@inject ProductosService ProductosService
+
 <div class="cart-container">
     <h3>Tu Carrito de Compras</h3>
 
-    @if (CarritoService.Items.Any())
+    @if (CarritoService.TieneItems)
     {
         <div class="cart-items">
             @foreach (var item in CarritoService.Items)
             {
-                <div class="cart-item">
+                <div class="cart-item" key="@item.ProductoId">
                     <img src="@item.ImagenUrl" alt="@item.Nombre" width="80" />
                     <div class="item-details">
                         <h5>@item.Nombre</h5>
                         <p>Precio: @item.Precio.ToString("C")</p>
+                        <p>Disponibles: @item.StockDisponible</p>
                         <div class="quantity-controls">
-                            <button @onclick="() => DisminuirCantidad(item.ProductoId)">-</button>
+                            <button @onclick="() => DisminuirCantidad(item.ProductoId)"
+                                    disabled="@(item.Cantidad <= 1)">
+                                -
+                            </button>
                             <span>@item.Cantidad</span>
-                            <button @onclick="() => AumentarCantidad(item.ProductoId)">+</button>
-                            <button @onclick="() => EliminarItem(item.ProductoId)" class="btn-remove">Eliminar</button>
+                            <button @onclick="() => AumentarCantidad(item.ProductoId)"
+                                    disabled="@(item.Cantidad >= item.StockDisponible)">
+                                +
+                            </button>
+                            <button @onclick="() => EliminarItem(item.ProductoId)"
+                                    class="btn-remove">
+                                Eliminar
+                            </button>
                         </div>
                         <p>Subtotal: @((item.Precio * item.Cantidad).ToString("C"))</p>
                     </div>
@@ -33,30 +45,42 @@
 
         <div class="cart-summary">
             <h4>Total: @CarritoService.Total.ToString("C")</h4>
-            <button @onclick="ProcesarCompra" class="btn-checkout">Proceder al Pago</button>
+            <button @onclick="ProcesarCompra"
+                    disabled="@procesando"
+                    class="btn-checkout">
+                @(procesando ? "Procesando..." : "Proceder al Pago")
+            </button>
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
         </div>
     }
     else
     {
         <p>Tu carrito está vacío</p>
-        <button @onclick="@(() => Navigation.NavigateTo("/productos"))" class="btn-continue">Continuar Comprando</button>
+        <button @onclick="IrAProductos" class="btn-continue">Continuar Comprando</button>
     }
 </div>
 
 @code {
+    private bool procesando = false;
+    private string? errorMessage = null;
+
+    private void IrAProductos()
+    {
+        Navigation.NavigateTo("/productos");
+    }
+
     private void AumentarCantidad(int productoId)
     {
         var item = CarritoService.Items.First(i => i.ProductoId == productoId);
-        CarritoService.ActualizarCantidad(productoId, item.Cantidad + 1);
+        CarritoService.AumentarCantidad(productoId, 1, item.StockDisponible);
     }
 
     private void DisminuirCantidad(int productoId)
     {
-        var item = CarritoService.Items.First(i => i.ProductoId == productoId);
-        if (item.Cantidad > 1)
-        {
-            CarritoService.ActualizarCantidad(productoId, item.Cantidad - 1);
-        }
+        CarritoService.DisminuirCantidad(productoId);
     }
 
     private void EliminarItem(int productoId)
@@ -66,40 +90,71 @@
 
     private async Task ProcesarCompra()
     {
-        // Obtener el usuario logueado
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        var usuarioId = int.Parse(user.FindFirst(c => c.Type == "sub")?.Value);
+        procesando = true;
+        errorMessage = null;
 
-        // Crear factura
-        var factura = new Facturas
-            {
-                FechaRegistro = DateTime.Now,
-                UsuarioId = usuarioId,
-                // No incluimos Total aquí ya que no es una propiedad persistente en tu modelo
-                // El total se calculará automáticamente al sumar los subtotales de los detalles
-            };
-
-        var facturaId = await facturasService.Insertar(factura);
-
-        // Crear detalles de factura
-        foreach (var item in CarritoService.Items)
+        try
         {
-            var detalle = new DetalleFacturas
+            // Validar stock actualizado desde la base de datos
+            if (!await CarritoService.VerificarDisponibilidad(ProductosService))
+            {
+                errorMessage = "Algunos productos ya no tienen suficiente stock disponible";
+                return;
+            }
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var usuarioId = int.Parse(authState.User.FindFirst("sub")?.Value ?? "0");
+
+            // Crear factura
+            var factura = new Facturas
                 {
-                    FacturaId = facturaId,
-                    ProductoId = item.ProductoId,
-                    Cantidad = item.Cantidad,
-                    PrecioUnitario = item.Precio
+                    FechaRegistro = DateTime.Now,
+                    UsuarioId = usuarioId
                 };
 
-            await detalleFacturasService.Insertar(detalle);
+            var facturaGuardada = await FacturasService.Guardar(factura);
+            if (!facturaGuardada)
+            {
+                errorMessage = "Error al crear la factura";
+                return;
+            }
+
+            var facturaCreada = await FacturasService.Buscar(factura.FacturaId);
+            if (facturaCreada == null)
+            {
+                errorMessage = "Error al recuperar la factura creada";
+                return;
+            }
+
+            foreach (var item in CarritoService.Items)
+            {
+                var detalle = new DetalleFacturas
+                    {
+                        FacturaId = facturaCreada.FacturaId,
+                        ProductoId = item.ProductoId,
+                        Cantidad = item.Cantidad,
+                        PrecioUnitario = item.Precio
+                    };
+
+                var detalleGuardado = await DetalleFacturasService.Guardar(detalle);
+                if (!detalleGuardado)
+                {
+                    errorMessage = $"Error al guardar el producto {item.Nombre}";
+                    await FacturasService.Eliminar(facturaCreada.FacturaId);
+                    return;
+                }
+            }
+
+            CarritoService.LimpiarCarrito();
+            Navigation.NavigateTo($"/confirmacion/{facturaCreada.FacturaId}");
         }
-
-        // Limpiar carrito
-        CarritoService.LimpiarCarrito();
-
-        // Redirigir a confirmación
-        Navigation.NavigateTo($"/confirmacion/{facturaId}");
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            procesando = false;
+        }
     }
 }
