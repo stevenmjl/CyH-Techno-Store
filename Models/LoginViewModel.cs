@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace CyH_Techno_Store.Models;
-
 public class LoginViewModel
 {
     [Required(AllowEmptyStrings = false, ErrorMessage = "Por favor agregar un nombre de usuario.")]
