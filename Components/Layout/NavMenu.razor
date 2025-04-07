@@ -8,31 +8,79 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
+        <!-- Home (accesible para todos) -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
             </NavLink>
         </div>
 
+        <!-- Productos (accesible para Admin y User) -->
         <AuthorizeView Roles="Admin, User">
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+                    <NavLink class="nav-link" href="Producto/Index">
+                        <span class="bi bi-box-seam" aria-hidden="true"></span> Productos
                     </NavLink>
                 </div>
             </Authorized>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin">
+        <AuthorizeView Roles="User">
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="weather">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                    <NavLink class="nav-link" href="carrito">
+                        <span class="bi bi-cart3" aria-hidden="true"></span> Carrito
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <!-- Sección de Administración (solo Admin) -->
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <!-- Categorías -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Categoria/Index">
+                        <span class="bi bi-tags" aria-hidden="true"></span> Categorías
+                    </NavLink>
+                </div>
+
+                <!-- Facturas de venta -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Factura/Index">
+                        <span class="bi bi-receipt" aria-hidden="true"></span> Facturas Venta
+                    </NavLink>
+                </div>
+
+                <!-- Facturas de compra -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="FacturaAdmin/Index">
+                        <span class="bi bi-file-earmark-text" aria-hidden="true"></span> Facturas Compra
+                    </NavLink>
+                </div>
+
+                <!-- Proveedores -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Proveedor/Index">
+                        <span class="bi bi-truck" aria-hidden="true"></span> Proveedores
+                    </NavLink>
+                </div>
+
+                <!-- Transacciones -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Transaccion/Index">
+                        <span class="bi bi-cash-stack" aria-hidden="true"></span> Transacciones
+                    </NavLink>
+                </div>
+
+                <!-- Usuarios -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Usuario/Index">
+                        <span class="bi bi-people" aria-hidden="true"></span> Usuarios
                     </NavLink>
                 </div>
             </Authorized>
         </AuthorizeView>
     </nav>
 </div>
-
