@@ -19,6 +19,7 @@ public class Transacciones
     [RegularExpression("^(Ingreso|Gasto)$")]
     public string? Tipo { get; set; }
 
+    [ForeignKey("FacturaId")]
     [Required(ErrorMessage = "Debe agregar el ID de la factura.")]
     public int FacturaId { get; set; }
 
