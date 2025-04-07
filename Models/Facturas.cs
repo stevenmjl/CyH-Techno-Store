@@ -1,33 +1,20 @@
-﻿
-using CyH_Techno_Store.Models;
-using CyH_Techno_Store;
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CyH_Techno_Store.Models
+namespace CyH_Techno_Store.Models;
+public class Facturas
 {
-    public class Facturass
-    {
-        [Key]
-        public int FacturasId { get; set; }
+    [Key]
+    public int FacturaId { get; set; }
 
-        [Required]
-        public DateTime Fecha { get; set; } = DateTime.Now;
+    [DataType(DataType.DateTime)]
+    public DateTime FechaRegistro { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Total { get; set; }
+    [Required(ErrorMessage = "El usuario es obligatorio")]
+    public int UsuarioId { get; set; } 
 
-        // Relación corregida con UserAccounts
-        [Required(ErrorMessage = "El usuario es obligatorio")]
-        public int UsuarioId { get; set; }  // Nombre consistente
+    [ForeignKey("UsuarioId")]
+    public Usuarios? Usuarios { get; set; }
 
-        [ForeignKey("UsuarioId")]
-        public virtual UserAccounts Usuario { get; set; }  // Nombre más descriptivo
-
-        public virtual ICollection<DetalleFacturass> Detalles { get; set; } = new List<DetalleFacturass>();
-    }
+    public ICollection<DetalleFacturas> DetalleFacturas { get; set; } = new List<DetalleFacturas>();
 }
