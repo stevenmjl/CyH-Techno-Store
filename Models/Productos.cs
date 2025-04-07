@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CyH_Techno_Store.Models;
@@ -28,11 +27,13 @@ public class Productoss
 
     [DataType(DataType.DateTime)]
     public DateTime FechaRegistro { get; set; } = DateTime.Now;
-
    
     [StringLength(255, ErrorMessage = "La ruta de la imagen no puede exceder 255 caracteres")]
     public string ImagenUrl { get; set; } 
     
     public virtual ICollection<DetalleFacturass> DetallesFacturas { get; set; } = new List<DetalleFacturass>();
 
+    [Required(ErrorMessage = "La categoría es obligatoria")]
+    public int CategoriaId { get; set; }
+    public Categoria Categoria { get; set; }
 }
