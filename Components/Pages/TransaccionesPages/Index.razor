@@ -104,11 +104,11 @@
                             <td class="text-center">@transaccion.FacturaId</td>
                             <td class="text-center">@transaccion.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
                             <td class="text-center">
-                                @if (transaccion.Facturas != null)
+                                @if (transaccion.Tipo == "Ingreso")
                                 {
                                     <span>Factura Cliente</span>
                                 }
-                                else if (transaccion.FacturaAdmins != null)
+                                else if (transaccion.Tipo == "Gasto")
                                 {
                                     <span>Factura Proveedor</span>
                                 }
