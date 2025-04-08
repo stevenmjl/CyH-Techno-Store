@@ -1,0 +1,54 @@
+﻿@page "/DetalleFacturaAdmin/Index"
+@inject DetalleFacturaAdminsService DetalleService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@using CyH_Techno_Store.Models
+
+<h3>Detalles de Facturas de Administrador</h3>
+
+@if (detalles == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (detalles.Count == 0)
+{
+    <p>No hay detalles de facturas de administrador registrados.</p>
+}
+else
+{
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                <th>Factura Admin</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in detalles)
+            {
+                <tr>
+                    <td>@detalle.DetalleFacturaAdminId</td>
+                    <td>@detalle.Productos?.Nombre</td>
+                    <td>@detalle.Cantidad</td>
+                    <td>@detalle.PrecioUnitario.ToString("C")</td>
+                    <td>@detalle.Subtotal.ToString("C")</td>
+                    <td>@detalle.FacturaAdmins?.FacturaAdminId</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<DetalleFacturaAdmins> detalles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        detalles = await DetalleService.ListarTodo(); 
+    }
+}
