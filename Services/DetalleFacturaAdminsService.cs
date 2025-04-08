@@ -99,4 +99,13 @@ public class DetalleFacturaAdminsService(IDbContextFactory<Contexto> dbFactory)
             .Where(d => d.ProductoId == productoId)
             .SumAsync(d => d.Cantidad);
     }
+
+    public async Task<List<DetalleFacturaAdmins>> ListarTodo()
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+        return await contexto.DetalleFacturaAdmins
+            .Include(d => d.Productos)
+            .Include(d => d.FacturaAdmins)
+            .ToListAsync();
+    }
 }
