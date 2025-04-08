@@ -58,3 +58,14 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.nav-scrollable {
+    width: 280px; /* o más si lo necesitas */
+}
+
+.nav-link {
+    font-size: 0.9rem; /* Tamaño un poco más pequeño para que quepa más texto */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
