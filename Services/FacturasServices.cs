@@ -30,13 +30,14 @@ public class FacturasService
            .AnyAsync(f => f.FechaRegistro.Date == fecha.Date && f.UsuarioId == usuarioId);
     }
 
-    private async Task<bool> Insertar(Facturas factura)
+    public async Task<int> Insertar(Facturas factura)
     {
         _logger.LogInformation("Insertando nueva factura");
         await using var contexto = await _dbFactory.CreateDbContextAsync();
 
         contexto.Facturas.Add(factura);
-        return await contexto.SaveChangesAsync() > 0;
+        await contexto.SaveChangesAsync();
+        return factura.FacturaId;
     }
 
     private async Task<bool> Modificar(Facturas factura)
@@ -48,7 +49,7 @@ public class FacturasService
         return await contexto.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> Guardar(Facturas factura)
+    public async Task<int> Guardar(Facturas factura)
     {
         if (!await Existe(factura.FacturaId))
         {
@@ -56,7 +57,10 @@ public class FacturasService
         }
         else
         {
-            return await Modificar(factura);
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
+            contexto.Update(factura);
+            await contexto.SaveChangesAsync();
+            return factura.FacturaId;
         }
     }
 
