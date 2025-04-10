@@ -1,0 +1,105 @@
+﻿@page "/carrito"
+@using CyH_Techno_Store.Models
+@using CyH_Techno_Store.Services
+@inject CarritoService CarritoService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject FacturasService facturasService
+@inject DetalleFacturasService detalleFacturasService
+<div class="cart-container">
+    <h3>Tu Carrito de Compras</h3>
+
+    @if (CarritoService.Items.Any())
+    {
+        <div class="cart-items">
+            @foreach (var item in CarritoService.Items)
+            {
+                <div class="cart-item">
+                    <img src="@item.ImagenUrl" alt="@item.Nombre" width="80" />
+                    <div class="item-details">
+                        <h5>@item.Nombre</h5>
+                        <p>Precio: @item.Precio.ToString("C")</p>
+                        <div class="quantity-controls">
+                            <button @onclick="() => DisminuirCantidad(item.ProductoId)">-</button>
+                            <span>@item.Cantidad</span>
+                            <button @onclick="() => AumentarCantidad(item.ProductoId)">+</button>
+                            <button @onclick="() => EliminarItem(item.ProductoId)" class="btn-remove">Eliminar</button>
+                        </div>
+                        <p>Subtotal: @((item.Precio * item.Cantidad).ToString("C"))</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="cart-summary">
+            <h4>Total: @CarritoService.Total.ToString("C")</h4>
+            <button @onclick="ProcesarCompra" class="btn-checkout">Proceder al Pago</button>
+        </div>
+    }
+    else
+    {
+        <p>Tu carrito está vacío</p>
+        <button @onclick="@(() => Navigation.NavigateTo("/productos"))" class="btn-continue">Continuar Comprando</button>
+    }
+</div>
+
+@code {
+    private void AumentarCantidad(int productoId)
+    {
+        var item = CarritoService.Items.First(i => i.ProductoId == productoId);
+        CarritoService.ActualizarCantidad(productoId, item.Cantidad + 1);
+    }
+
+    private void DisminuirCantidad(int productoId)
+    {
+        var item = CarritoService.Items.First(i => i.ProductoId == productoId);
+        if (item.Cantidad > 1)
+        {
+            CarritoService.ActualizarCantidad(productoId, item.Cantidad - 1);
+        }
+    }
+
+    private void EliminarItem(int productoId)
+    {
+        CarritoService.EliminarProducto(productoId);
+    }
+
+    private async Task ProcesarCompra()
+    {
+        // Obtener el usuario logueado
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var usuarioId = int.Parse(user.FindFirst(c => c.Type == "sub")?.Value);
+
+        // Crear factura
+        var factura = new Facturas
+            {
+                FechaRegistro = DateTime.Now,
+                UsuarioId = usuarioId,
+                // No incluimos Total aquí ya que no es una propiedad persistente en tu modelo
+                // El total se calculará automáticamente al sumar los subtotales de los detalles
+            };
+
+        var facturaId = await facturasService.Insertar(factura);
+
+        // Crear detalles de factura
+        foreach (var item in CarritoService.Items)
+        {
+            var detalle = new DetalleFacturas
+                {
+                    FacturaId = facturaId,
+                    ProductoId = item.ProductoId,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.Precio
+                };
+
+            await detalleFacturasService.Insertar(detalle);
+        }
+
+        // Limpiar carrito
+        CarritoService.LimpiarCarrito();
+
+        // Redirigir a confirmación
+        Navigation.NavigateTo($"/confirmacion/{facturaId}");
+    }
+}
