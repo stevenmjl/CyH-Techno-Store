@@ -7,18 +7,18 @@ public class Contexto : DbContext
 {
     public Contexto(DbContextOptions<Contexto> options) : base(options) { }
 
-    // 1. Usa nombres pluralizados consistentemente para DbSet
-    public DbSet<UserAccounts> UserAccountss { get; set; } // Cambiado a plural
-    public DbSet<Productoss> Productoss { get; set; } // Asumiendo que el modelo se llama Productos
-    public DbSet<Facturass> Facturass { get; set; } // Asumiendo que el modelo se llama Facturas
-    public DbSet<DetalleFacturass> DetallesFacturas { get; set; } // Cambiado a plural
+    
+    public DbSet<UserAccounts> UserAccountss { get; set; } 
+    public DbSet<Productoss> Productoss { get; set; } 
+    public DbSet<Facturass> Facturass { get; set; } 
+    public DbSet<DetalleFacturass> DetallesFacturas { get; set; } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 2. Configuración correcta del nombre de tabla y relaciones
-        modelBuilder.Entity<UserAccounts>().ToTable("UserAccountss"); // Nombre explícito de tabla
+        
+        modelBuilder.Entity<UserAccounts>().ToTable("UserAccountss"); 
 
-        // 3. Configuración de HasData correcta
+        
         modelBuilder.Entity<UserAccounts>().HasData(
             new UserAccounts
             {
