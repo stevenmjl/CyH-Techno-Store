@@ -30,25 +30,22 @@ public class DetalleFacturasService
            .AnyAsync(d => d.FacturaId == facturasId && d.ProductoId == productosId);
     }
 
-    private async Task<bool> Insertar(DetalleFacturas detalle)
+    public async Task<int> Insertar(DetalleFacturas detalle)
     {
         _logger.LogInformation("Insertando nuevo detalle de factura");
         await using var contexto = await _dbFactory.CreateDbContextAsync();
-
 
         var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
         if (producto == null || producto.Stock < detalle.Cantidad)
         {
             _logger.LogWarning($"No hay suficiente stock para el producto {detalle.ProductoId}");
-            return false;
+            return -1; // Usamos -1 para indicar error
         }
 
         contexto.DetalleFacturas.Add(detalle);
-
-
         producto.Stock -= detalle.Cantidad;
-
-        return await contexto.SaveChangesAsync() > 0;
+        await contexto.SaveChangesAsync();
+        return detalle.DetalleFacturaId;
     }
 
     private async Task<bool> Modificar(DetalleFacturas detalle)
@@ -79,7 +76,7 @@ public class DetalleFacturasService
         return await contexto.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> Guardar(DetalleFacturas detalle)
+    public async Task<int> Guardar(DetalleFacturas detalle)
     {
         if (!await Existe(detalle.DetalleFacturaId))
         {
@@ -87,7 +84,26 @@ public class DetalleFacturasService
         }
         else
         {
-            return await Modificar(detalle);
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
+            var detalleExistente = await contexto.DetalleFacturas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DetalleFacturaId == detalle.DetalleFacturaId);
+
+            if (detalleExistente == null) return -1;
+
+            var diferenciaCantidad = detalle.Cantidad - detalleExistente.Cantidad;
+            var producto = await contexto.Productos.FindAsync(detalle.ProductoId);
+
+            if (producto == null || producto.Stock < diferenciaCantidad)
+            {
+                _logger.LogWarning($"No hay suficiente stock para actualizar el detalle {detalle.DetalleFacturaId}");
+                return -1;
+            }
+
+            producto.Stock -= diferenciaCantidad;
+            contexto.Update(detalle);
+            await contexto.SaveChangesAsync();
+            return detalle.DetalleFacturaId;
         }
     }
 
