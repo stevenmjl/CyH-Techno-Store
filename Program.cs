@@ -24,6 +24,7 @@ builder.Services.AddScoped<UsuariosService>();
 builder.Services.AddScoped<ProductosService>();
 builder.Services.AddScoped<FacturasService>();
 builder.Services.AddScoped<DetalleFacturasService>();
+builder.Services.AddScoped<CarritoService>();
 
 // Servicios para el apartado del Login
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
