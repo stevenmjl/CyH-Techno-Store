@@ -1,5 +1,7 @@
+
 using CyH_Techno_Store.Components;
 using CyH_Techno_Store.DAL;
+using CyH_Techno_Store.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +19,11 @@ builder.Services.AddDbContextFactory<Contexto>(c => c.UseSqlServer(ConStr));
 
 // Inyeción de servicios a usar
 builder.Services.AddBlazorBootstrap();
+
+builder.Services.AddScoped<UsuariosService>();
+builder.Services.AddScoped<ProductosService>();
+builder.Services.AddScoped<FacturasService>();
+builder.Services.AddScoped<DetalleFacturasService>();
 
 // Servicios para el apartado del Login
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
