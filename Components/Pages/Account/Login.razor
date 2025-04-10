@@ -47,11 +47,11 @@
 
     private async Task Authenticate()
     {
-        var userAccount = contexto
-                .UserAccounts
+        var UserAccounts = contexto
+                .UserAccountss
                 .Where(u => u.UserName == Model.UserName)
                 .FirstOrDefault();
-        if(userAccount is null || userAccount.Password != Model.Password)
+        if(UserAccounts is null || UserAccounts.Password != Model.Password)
         {
             errorMessage = "Usuario inválido o contraseña.";
             return;
@@ -60,7 +60,7 @@
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, Model.UserName),
-                new Claim(ClaimTypes.Role, userAccount.Role)
+                new Claim(ClaimTypes.Role, UserAccounts.Role)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
