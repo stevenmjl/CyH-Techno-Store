@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace CyH_Techno_Store.Services;
 
-public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory, TransaccionesService transaccionesService)
+public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory)
 {
     private async Task<bool> Existe(int facturaAdminId)
     {
@@ -32,17 +32,6 @@ public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory, Transac
                     producto.Stock += detalle.Cantidad;
                 }
             }
-
-            var transaccion = new Transacciones
-            {
-                Monto = factura.DetalleFacturaAdmin.Sum(d => d.Subtotal),
-                FechaRegistro = DateTime.Now,
-                Tipo = "Gasto",
-                FacturaId = factura.FacturaAdminId,
-                FacturaAdmins = factura
-            };
-
-            await transaccionesService.RegistrarTransaccion(transaccion);
 
             await contexto.SaveChangesAsync();
             return true;
@@ -86,20 +75,6 @@ public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory, Transac
                     producto.Stock += detalle.Cantidad;
                 }
             }
-
-            // Actualizar transacción
-            await transaccionesService.EliminarTransaccion(factura.FacturaAdminId);
-
-            var nuevaTransaccion = new Transacciones
-            {
-                Monto = factura.DetalleFacturaAdmin.Sum(d => d.Subtotal),
-                FechaRegistro = DateTime.Now,
-                Tipo = "Gasto",
-                FacturaId = factura.FacturaAdminId,
-                FacturaAdmins = factura
-            };
-
-            await transaccionesService.RegistrarTransaccion(nuevaTransaccion);
 
             await contexto.SaveChangesAsync();
             return true;
@@ -148,9 +123,6 @@ public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory, Transac
                     producto.Stock -= detalle.Cantidad;
                 }
             }
-
-            // Eliminar transacción asociada
-            await transaccionesService.EliminarTransaccion(facturaAdminId);
 
             // Eliminar factura
             await contexto.FacturaAdmins
