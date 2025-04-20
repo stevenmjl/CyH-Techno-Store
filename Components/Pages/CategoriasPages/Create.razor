@@ -1,0 +1,119 @@
+﻿@page "/Categoria/Create"
+@rendermode InteractiveServer
+@inject CategoriasService categoriaService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Crear categor&iacute;</PageTitle>
+
+<EditForm Model="Categoria" OnValidSubmit="Guardar">
+    <Toasts class="p-3" Messages="Mensajes" Placement="ToastsPlacement.TopRight"
+            AutoHide="true" Delay="5000" />
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            @* Título *@
+            <div class="card-header text-white text-center">
+                <div class="bg-success rounded">
+                    <h1>Registro de categor&iacute;as</h1>
+                </div>
+            </div>
+
+            @* Cuerpo de página *@
+            <div class="card-body">
+                @* Id *@
+                <div class="mb-3 col-2">
+                    <label class="form-label" for="Id">Id</label>
+                    <InputNumber id="Id" class="form-control text-left"
+                                 readonly @bind-Value="UltimaCategoria"></InputNumber>
+                </div>
+
+                @* Nombre *@
+                <div class="mb-3 col-6">
+                    <label class="form-label" for="Nombre">Nombre</label>
+                    <InputText id="Nombre" class="form-control"
+                               @bind-Value="Categoria.Nombre" placeholder="Ej: Electrónica">
+                    </InputText>
+                    <ValidationMessage For="@(() => Categoria.Nombre)"></ValidationMessage>
+                </div>
+
+                @* Descripción *@
+                <div class="mb-3 col-10">
+                    <label class="form-label" for="Descripcion">Descripción</label>
+                    <InputTextArea id="Descripcion" class="form-control"
+                                 @bind-Value="Categoria.Descripcion" 
+                                 placeholder="Ej: Productos electrónicos y dispositivos tecnológicos"
+                                 rows="3">
+                    </InputTextArea>
+                    <ValidationMessage For="@(() => Categoria.Descripcion)"></ValidationMessage>
+                </div>
+            </div>
+
+            @* Botones de control *@
+            <div class="card-footer d-flex justify-content-center gap-3">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy"></i> Crear
+                </button>
+
+                <a class="btn btn-secondary" href="/Categoria/Index">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Categoria? Categoria { get; set; } = new Categoria();
+    private int UltimaCategoria;
+    List<ToastMessage> Mensajes = new List<ToastMessage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UltimaCategoria = 1 + await categoriaService.UltimoId();
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            var nuevo = await categoriaService.Guardar(Categoria);
+            if (nuevo)
+            {
+                MostrarMensaje(ToastType.Success,
+                    $"Categoría {Categoria.Nombre} ha sido creada correctamente.");
+                Categoria = new Categoria();
+                UltimaCategoria = 1 + await categoriaService.UltimoId();
+            }
+            else
+            {
+                MostrarMensaje(ToastType.Danger, "La categoría no se ha podido crear correctamente.");
+            }
+        }
+        else
+        {
+            MostrarMensaje(ToastType.Warning, "Ya existe una categoría con este nombre.");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        var existe = await categoriaService.Existe(Categoria.CategoriaId, Categoria.Nombre);
+        return existe;
+    }
+
+    private void MostrarMensaje(ToastType toastType, string message)
+    {
+        Mensajes.Add(CrearMensaje(toastType, message));
+    }
+
+    private ToastMessage CrearMensaje(ToastType toastType, string message)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = "Notificación",
+            HelpText = $"{DateTime.Now}",
+            Message = message,
+        };
+}
