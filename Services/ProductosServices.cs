@@ -162,4 +162,38 @@ public class ProductosService(IDbContextFactory<Contexto> dbFactory)
 
         return (totalProductos, productosBajoStock);
     }
+
+    public async Task<int> UltimoId()
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+        var ultimoProducto = await contexto.Productos
+            .OrderByDescending(p => p.ProductoId)
+            .FirstOrDefaultAsync();
+
+        return ultimoProducto?.ProductoId ?? 0;
+    }
+
+    public async Task<bool> ActualizarStockMasivo(Dictionary<int, int> actualizaciones)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+
+        try
+        {
+            foreach (var (productoId, cantidad) in actualizaciones)
+            {
+                var producto = await contexto.Productos.FindAsync(productoId);
+                if (producto != null)
+                {
+                    producto.Stock += cantidad;
+                }
+            }
+
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
