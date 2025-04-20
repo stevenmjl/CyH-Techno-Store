@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace CyH_Techno_Store.Services;
 
-public class FacturasService(IDbContextFactory<Contexto> dbFactory, TransaccionesService transaccionesService)
+public class FacturasService(IDbContextFactory<Contexto> dbFactory)
 {
     private async Task<bool> Existe(int facturaId)
     {
@@ -50,17 +50,6 @@ public class FacturasService(IDbContextFactory<Contexto> dbFactory, Transaccione
                     producto.Stock -= detalle.Cantidad;
                 }
             }
-
-            var transaccion = new Transacciones
-            {
-                Monto = factura.DetalleFacturas.Sum(d => d.Subtotal),
-                FechaRegistro = DateTime.Now,
-                Tipo = "Ingreso",
-                FacturaId = factura.FacturaId,
-                Facturas = factura
-            };
-
-            await transaccionesService.RegistrarTransaccion(transaccion);
 
             await contexto.SaveChangesAsync();
             return true;
@@ -110,20 +99,6 @@ public class FacturasService(IDbContextFactory<Contexto> dbFactory, Transaccione
                 }
             }
 
-            // Actualizar transacción
-            await transaccionesService.EliminarTransaccion(factura.FacturaId);
-
-            var nuevaTransaccion = new Transacciones
-            {
-                Monto = factura.DetalleFacturas.Sum(d => d.Subtotal),
-                FechaRegistro = DateTime.Now,
-                Tipo = "Ingreso",
-                FacturaId = factura.FacturaId,
-                Facturas = factura
-            };
-
-            await transaccionesService.RegistrarTransaccion(nuevaTransaccion);
-
             await contexto.SaveChangesAsync();
             return true;
         }
@@ -170,9 +145,6 @@ public class FacturasService(IDbContextFactory<Contexto> dbFactory, Transaccione
                     producto.Stock += detalle.Cantidad;
                 }
             }
-
-            // Eliminar transacción asociada
-            await transaccionesService.EliminarTransaccion(facturaId);
 
             // Eliminar factura
             await contexto.Facturas
