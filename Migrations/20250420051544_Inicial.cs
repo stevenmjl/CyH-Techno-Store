@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CyHTechnoStore.Migrations
 {
     /// <inheritdoc />
-    public partial class ModelsBuilders : Migration
+    public partial class Inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -173,8 +173,7 @@ namespace CyHTechnoStore.Migrations
                     FacturaId = table.Column<int>(type: "int", nullable: false),
                     ProductoId = table.Column<int>(type: "int", nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    PrecioUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -190,34 +189,6 @@ namespace CyHTechnoStore.Migrations
                         column: x => x.ProductoId,
                         principalTable: "Productos",
                         principalColumn: "ProductoId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Transacciones",
-                columns: table => new
-                {
-                    TransaccionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Tipo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FacturaId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transacciones", x => x.TransaccionId);
-                    table.ForeignKey(
-                        name: "FK_Transacciones_FacturaAdmins_FacturaId",
-                        column: x => x.FacturaId,
-                        principalTable: "FacturaAdmins",
-                        principalColumn: "FacturaAdminId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Transacciones_Facturas_FacturaId",
-                        column: x => x.FacturaId,
-                        principalTable: "Facturas",
-                        principalColumn: "FacturaId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -250,16 +221,16 @@ namespace CyHTechnoStore.Migrations
                 columns: new[] { "UsuarioId", "Correo", "Direccion", "FechaRegistro", "NumeroTarjeta", "Password", "Role", "Telefono", "UserName" },
                 values: new object[,]
                 {
-                    { 1, "admin1@gmail.com", "Calle Principal #1", new DateTime(2020, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "1234567890123456789", "Qwe123...", "Admin", "8091234567", "Admin1" },
-                    { 2, "user1@gmail.com", "Avenida Siempre Viva #2", new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "9876543210987654321", "Asd123...", "User", "8092345678", "User1" },
-                    { 3, "admin2@gmail.com", "Calle Luna #3", new DateTime(2021, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "1111222233334444555", "Admin234...", "Admin", "8093456789", "Admin2" },
-                    { 4, "user2@gmail.com", "Calle Sol #4", new DateTime(2023, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "5555666677778888999", "User234...", "User", "8094567890", "User2" },
-                    { 5, "admin3@gmail.com", "Calle 5 de Abril", new DateTime(2022, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "1122334455667788990", "Admin345...", "Admin", "8291234567", "Admin3" },
-                    { 6, "user3@gmail.com", "Avenida Las Palmas", new DateTime(2024, 3, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), "9988776655443322110", "User345...", "User", "8292345678", "User3" },
-                    { 7, "admin4@gmail.com", "Residencial Brisas del Este", new DateTime(2019, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "1234432112344321123", "Admin456...", "Admin", "8493456789", "Admin4" },
-                    { 8, "user4@gmail.com", "Villa Mella, Santo Domingo", new DateTime(2021, 8, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "3211233211233211234", "User456...", "User", "8494567890", "User4" },
-                    { 9, "admin5@gmail.com", "Ensanche La Fe", new DateTime(2023, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), "1231231231231231231", "Admin567...", "Admin", "8095678901", "Admin5" },
-                    { 10, "user5@gmail.com", "Zona Colonial", new DateTime(2025, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "3213213213213213213", "User567...", "User", "8295678901", "User5" }
+                    { 1, "AdminPedro@gmail.com", "Calle Principal #1", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "1234567890123456789", "Pedro50...", "Admin", "8091234567", "AdminPedro" },
+                    { 2, "AdminJose@gmail.com", "Avenida Siempre Viva #2", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "9876543210987654321", "Josep777", "Admin", "8092345678", "AdminJose" },
+                    { 3, "AdminSusan@gmail.com", "Calle Luna #3", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "1111222233334444555", "GatitaLinda15", "Admin", "8093456789", "AdminSusan" },
+                    { 4, "AdminVannesa@gmail.com", "Calle Sol #4", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "5555666677778888999", "Venaros60...", "Admin", "8094567890", "AdminVannesa" },
+                    { 5, "AdminJuan@gmail.com", "Calle 5 de Abril", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "1122334455667788990", "Master...200M", "Admin", "8291234567", "AdminJuan" },
+                    { 6, "FloresJJJ@gmail.com", "Avenida Las Palmas", new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "9988776655443322110", "Mis12Flores", "User", "8292345678", "FloresJJJ" },
+                    { 7, "Tengo4Lobos@gmail.com", "Residencial Brisas del Este", new DateTime(2025, 4, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "1234432112344321123", "Lobos9999", "User", "8493456789", "LoboAterrador" },
+                    { 8, "Melon14@gmail.com", "Villa Mella, Santo Domingo", new DateTime(2025, 4, 3, 0, 0, 0, 0, DateTimeKind.Unspecified), "3211233211233211234", "van999Plantas", "User", "8494567890", "PlantasMuchas" },
+                    { 9, "ResposteraJulia@gmail.com", "Ensanche La Fe", new DateTime(2025, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "1231231231231231231", "PastelDePapa20", "User", "8095678901", "ResposteraJulia" },
+                    { 10, "MarVelous@gmail.com", "Zona Colonial", new DateTime(2025, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "3213213213213213213", "VenusVSTierra", "User", "8295678901", "Mariano111" }
                 });
 
             migrationBuilder.InsertData(
@@ -267,11 +238,11 @@ namespace CyHTechnoStore.Migrations
                 columns: new[] { "FacturaAdminId", "FechaRegistro", "ProveedorId", "UsuarioId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 },
-                    { 2, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 3 },
-                    { 3, new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, 5 },
-                    { 4, new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, 7 },
-                    { 5, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 9 }
+                    { 1, new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 },
+                    { 2, new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 2 },
+                    { 3, new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, 3 },
+                    { 4, new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, 4 },
+                    { 5, new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 5, 5 }
                 });
 
             migrationBuilder.InsertData(
@@ -279,11 +250,11 @@ namespace CyHTechnoStore.Migrations
                 columns: new[] { "FacturaId", "FechaRegistro", "UsuarioId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 2 },
-                    { 2, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 4 },
-                    { 3, new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 6 },
-                    { 4, new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), 8 },
-                    { 5, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 10 }
+                    { 1, new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 6 },
+                    { 2, new DateTime(2025, 4, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), 7 },
+                    { 3, new DateTime(2025, 4, 3, 0, 0, 0, 0, DateTimeKind.Unspecified), 8 },
+                    { 4, new DateTime(2025, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), 9 },
+                    { 5, new DateTime(2025, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 10 }
                 });
 
             migrationBuilder.InsertData(
@@ -291,16 +262,16 @@ namespace CyHTechnoStore.Migrations
                 columns: new[] { "ProductoId", "CategoriaId", "Descripcion", "FechaRegistro", "ImagenUrl", "Nombre", "PrecioUnitario", "Stock" },
                 values: new object[,]
                 {
-                    { 1, 1, "Teléfono móvil con pantalla AMOLED y triple cámara de alta resolución.", new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/samsung_s23.jpg", "Samsung Galaxy S23", 849.99m, 50 },
-                    { 2, 1, "Teléfono inteligente con tecnología Face ID y cámara de 48 MP.", new DateTime(2023, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/iphone_14_pro.jpg", "iPhone 14 Pro", 1099.00m, 30 },
-                    { 3, 2, "Laptop ultradelgada con pantalla táctil y procesador Intel i7.", new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/dell_xps_13.jpg", "Dell XPS 13", 1249.50m, 20 },
-                    { 4, 2, "Computadora portátil con buen rendimiento para el trabajo diario.", new DateTime(2023, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/hp_pavilion_15.jpg", "HP Pavilion 15", 799.99m, 40 },
-                    { 5, 3, "Tableta de alto rendimiento con chip M1 y pantalla de 10.9 pulgadas.", new DateTime(2023, 7, 8, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/ipad_air_2022.jpg", "iPad Air 2022", 599.00m, 35 },
-                    { 6, 3, "Tableta Android con gran rendimiento y pantalla AMOLED.", new DateTime(2023, 8, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/galaxy_tab_s8.jpg", "Samsung Galaxy Tab S8", 649.99m, 25 },
-                    { 7, 4, "Televisor OLED con resolución 4K y compatibilidad con Dolby Vision.", new DateTime(2023, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/lg_oled_c2.jpg", "LG OLED C2 55", 1399.00m, 15 },
-                    { 8, 4, "Smart TV de 55 pulgadas con tecnología QLED y control por voz.", new DateTime(2023, 9, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/samsung_qled_q70.jpg", "Samsung QLED Q70", 999.99m, 18 },
-                    { 9, 5, "Cámara digital sin espejo ideal para fotografía profesional.", new DateTime(2023, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/canon_eos_m50.jpg", "Canon EOS M50", 699.00m, 22 },
-                    { 10, 5, "Cámara compacta de lentes intercambiables con enfoque automático rápido.", new DateTime(2023, 10, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "imagenes/productos/sony_a6400.jpg", "Sony Alpha a6400", 899.99m, 17 }
+                    { 1, 1, "Teléfono móvil con pantalla AMOLED y triple cámara de alta resolución.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://cdn1.smartprix.com/rx-izLSMVlI0-w1200-h1200/zLSMVlI0.jpg", "Samsung Galaxy S23", 50940.99m, 10 },
+                    { 2, 1, "Teléfono inteligente con tecnología Face ID y cámara de 48 MP.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://phonesdata.com/files/models/Apple-iPhone-14-Pro-907.jpg", "iPhone 14 Pro", 65940.00m, 10 },
+                    { 3, 2, "Laptop ultradelgada con pantalla táctil y procesador Intel i7.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://i.pcmag.com/imagery/reviews/06Ug0e0tlPFOh5qZAAcpq10-1.fit_lim.size_1200x630.v1688849689.jpg", "Dell XPS 13", 74970.00m, 10 },
+                    { 4, 2, "Computadora portátil con buen rendimiento para el trabajo diario.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://vitinhthienan.vn/upload/hinhanh/hp-all/ban-phim-laptop-hp/keyboard-hp-15-ab030tu/hp-15-ab030tu.jpg", "HP Pavilion 15", 47999.40m, 10 },
+                    { 5, 3, "Tableta de alto rendimiento con chip M1 y pantalla de 10.9 pulgadas.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://cdn.arstechnica.net/wp-content/uploads/2022/03/2022-iPad-Air-front-on-800x546.jpeg", "iPad Air 2022", 35940.00m, 10 },
+                    { 6, 3, "Tableta Android con gran rendimiento y pantalla AMOLED.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://www.zdnet.com/a/img/2022/07/17/fd8b66a7-f705-42d6-af93-08afa6c0965a/samsung-galaxy-tab-s8-ultra-8.jpg", "Samsung Galaxy Tab S8", 38999.99m, 10 },
+                    { 7, 4, "Televisor OLED con resolución 4K y compatibilidad con Dolby Vision.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://th.bing.com/th/id/OIP.LApG9RSTogWAqc7KM05JAgHaE6?rs=1&pid=ImgDetMain", "LG OLED C2 55", 83940.00m, 10 },
+                    { 8, 4, "Smart TV de 55 pulgadas con tecnología QLED y control por voz.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://th.bing.com/th/id/OIP.zYVsmU5Mk9SPgGfjTkmk4AHaE8?rs=1&pid=ImgDetMain", "Samsung QLED Q70", 59999.40m, 10 },
+                    { 9, 5, "Cámara digital sin espejo ideal para fotografía profesional.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://www.bhphotovideo.com/images/images1000x1000/canon_4728c006_eos_m50_mark_ii_1598385.jpg", "Canon EOS M50", 41940.00m, 10 },
+                    { 10, 5, "Cámara compacta de lentes intercambiables con enfoque automático rápido.", new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://i5.walmartimages.com/asr/49d86635-3a17-4550-a3ac-937b3bd546a7_1.007c196265cf588fec8a2911a6659373.jpeg", "Sony Alpha a6400", 53999.50m, 10 }
                 });
 
             migrationBuilder.InsertData(
@@ -308,50 +279,33 @@ namespace CyHTechnoStore.Migrations
                 columns: new[] { "DetalleFacturaAdminId", "Cantidad", "FacturaAdminId", "PrecioUnitario", "ProductoId" },
                 values: new object[,]
                 {
-                    { 1, 50, 1, 399.99m, 1 },
-                    { 2, 30, 1, 599.50m, 2 },
-                    { 3, 45, 2, 349.99m, 3 },
-                    { 4, 60, 2, 799.99m, 4 },
-                    { 5, 20, 3, 259.99m, 5 },
-                    { 6, 70, 3, 1199.00m, 6 },
-                    { 7, 40, 4, 499.99m, 7 },
-                    { 8, 35, 4, 1399.00m, 8 },
-                    { 9, 60, 5, 129.99m, 9 },
-                    { 10, 25, 5, 899.99m, 10 }
+                    { 1, 15, 1, 50940.99m, 1 },
+                    { 2, 15, 1, 65940.00m, 2 },
+                    { 3, 15, 2, 74970.00m, 3 },
+                    { 4, 15, 2, 47999.40m, 4 },
+                    { 5, 15, 3, 35940.00m, 5 },
+                    { 6, 15, 3, 38999.99m, 6 },
+                    { 7, 15, 4, 83940.00m, 7 },
+                    { 8, 15, 4, 59999.40m, 8 },
+                    { 9, 15, 5, 41940.00m, 9 },
+                    { 10, 15, 5, 53999.50m, 10 }
                 });
 
             migrationBuilder.InsertData(
                 table: "DetalleFacturas",
-                columns: new[] { "DetalleFacturaId", "Cantidad", "FacturaId", "PrecioUnitario", "ProductoId", "Subtotal" },
+                columns: new[] { "DetalleFacturaId", "Cantidad", "FacturaId", "PrecioUnitario", "ProductoId" },
                 values: new object[,]
                 {
-                    { 1, 2, 1, 0m, 1, 200m },
-                    { 2, 1, 1, 0m, 3, 150m },
-                    { 3, 2, 2, 0m, 2, 160m },
-                    { 4, 1, 2, 0m, 4, 150m },
-                    { 5, 1, 3, 0m, 3, 150m },
-                    { 6, 2, 3, 0m, 5, 200m },
-                    { 7, 2, 4, 0m, 1, 40m },
-                    { 8, 2, 4, 0m, 2, 160m },
-                    { 9, 2, 5, 0m, 3, 300m },
-                    { 10, 1, 5, 0m, 5, 40m }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Transacciones",
-                columns: new[] { "TransaccionId", "FacturaId", "FechaRegistro", "Monto", "Tipo" },
-                values: new object[,]
-                {
-                    { 1, 1, new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 37984.50m, "Gasto" },
-                    { 2, 2, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 63748.95m, "Gasto" },
-                    { 3, 3, new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 89129.80m, "Gasto" },
-                    { 4, 4, new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), 68964.60m, "Gasto" },
-                    { 5, 5, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 30299.15m, "Gasto" },
-                    { 6, 1, new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 350.00m, "Ingreso" },
-                    { 7, 2, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 310.00m, "Ingreso" },
-                    { 8, 3, new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), 350.00m, "Ingreso" },
-                    { 9, 4, new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), 200.00m, "Ingreso" },
-                    { 10, 5, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 340.00m, "Ingreso" }
+                    { 1, 5, 1, 50940.99m, 1 },
+                    { 2, 5, 1, 74970.00m, 3 },
+                    { 3, 5, 2, 65940.00m, 2 },
+                    { 4, 5, 2, 47999.40m, 4 },
+                    { 5, 5, 3, 35940.00m, 5 },
+                    { 6, 5, 3, 38999.99m, 6 },
+                    { 7, 5, 4, 53999.50m, 10 },
+                    { 8, 5, 4, 83940.00m, 7 },
+                    { 9, 5, 5, 41940.00m, 9 },
+                    { 10, 5, 5, 59999.40m, 8 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -393,11 +347,6 @@ namespace CyHTechnoStore.Migrations
                 name: "IX_Productos_CategoriaId",
                 table: "Productos",
                 column: "CategoriaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transacciones_FacturaId",
-                table: "Transacciones",
-                column: "FacturaId");
         }
 
         /// <inheritdoc />
@@ -410,25 +359,22 @@ namespace CyHTechnoStore.Migrations
                 name: "DetalleFacturas");
 
             migrationBuilder.DropTable(
-                name: "Transacciones");
-
-            migrationBuilder.DropTable(
-                name: "Productos");
-
-            migrationBuilder.DropTable(
                 name: "FacturaAdmins");
 
             migrationBuilder.DropTable(
                 name: "Facturas");
 
             migrationBuilder.DropTable(
-                name: "Categorias");
+                name: "Productos");
 
             migrationBuilder.DropTable(
                 name: "Proveedores");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
+
+            migrationBuilder.DropTable(
+                name: "Categorias");
         }
     }
 }

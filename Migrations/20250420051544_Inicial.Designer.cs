@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CyHTechnoStore.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250407191514_ModelsBuilders")]
-    partial class ModelsBuilders
+    [Migration("20250420051544_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,81 +112,81 @@ namespace CyHTechnoStore.Migrations
                         new
                         {
                             DetalleFacturaAdminId = 1,
-                            Cantidad = 50,
+                            Cantidad = 15,
                             FacturaAdminId = 1,
-                            PrecioUnitario = 399.99m,
+                            PrecioUnitario = 50940.99m,
                             ProductoId = 1
                         },
                         new
                         {
                             DetalleFacturaAdminId = 2,
-                            Cantidad = 30,
+                            Cantidad = 15,
                             FacturaAdminId = 1,
-                            PrecioUnitario = 599.50m,
+                            PrecioUnitario = 65940.00m,
                             ProductoId = 2
                         },
                         new
                         {
                             DetalleFacturaAdminId = 3,
-                            Cantidad = 45,
+                            Cantidad = 15,
                             FacturaAdminId = 2,
-                            PrecioUnitario = 349.99m,
+                            PrecioUnitario = 74970.00m,
                             ProductoId = 3
                         },
                         new
                         {
                             DetalleFacturaAdminId = 4,
-                            Cantidad = 60,
+                            Cantidad = 15,
                             FacturaAdminId = 2,
-                            PrecioUnitario = 799.99m,
+                            PrecioUnitario = 47999.40m,
                             ProductoId = 4
                         },
                         new
                         {
                             DetalleFacturaAdminId = 5,
-                            Cantidad = 20,
+                            Cantidad = 15,
                             FacturaAdminId = 3,
-                            PrecioUnitario = 259.99m,
+                            PrecioUnitario = 35940.00m,
                             ProductoId = 5
                         },
                         new
                         {
                             DetalleFacturaAdminId = 6,
-                            Cantidad = 70,
+                            Cantidad = 15,
                             FacturaAdminId = 3,
-                            PrecioUnitario = 1199.00m,
+                            PrecioUnitario = 38999.99m,
                             ProductoId = 6
                         },
                         new
                         {
                             DetalleFacturaAdminId = 7,
-                            Cantidad = 40,
+                            Cantidad = 15,
                             FacturaAdminId = 4,
-                            PrecioUnitario = 499.99m,
+                            PrecioUnitario = 83940.00m,
                             ProductoId = 7
                         },
                         new
                         {
                             DetalleFacturaAdminId = 8,
-                            Cantidad = 35,
+                            Cantidad = 15,
                             FacturaAdminId = 4,
-                            PrecioUnitario = 1399.00m,
+                            PrecioUnitario = 59999.40m,
                             ProductoId = 8
                         },
                         new
                         {
                             DetalleFacturaAdminId = 9,
-                            Cantidad = 60,
+                            Cantidad = 15,
                             FacturaAdminId = 5,
-                            PrecioUnitario = 129.99m,
+                            PrecioUnitario = 41940.00m,
                             ProductoId = 9
                         },
                         new
                         {
                             DetalleFacturaAdminId = 10,
-                            Cantidad = 25,
+                            Cantidad = 15,
                             FacturaAdminId = 5,
-                            PrecioUnitario = 899.99m,
+                            PrecioUnitario = 53999.50m,
                             ProductoId = 10
                         });
                 });
@@ -211,9 +211,6 @@ namespace CyHTechnoStore.Migrations
                     b.Property<int>("ProductoId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("DetalleFacturaId");
 
                     b.HasIndex("FacturaId");
@@ -226,92 +223,82 @@ namespace CyHTechnoStore.Migrations
                         new
                         {
                             DetalleFacturaId = 1,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 1,
-                            PrecioUnitario = 0m,
-                            ProductoId = 1,
-                            Subtotal = 200m
+                            PrecioUnitario = 50940.99m,
+                            ProductoId = 1
                         },
                         new
                         {
                             DetalleFacturaId = 2,
-                            Cantidad = 1,
+                            Cantidad = 5,
                             FacturaId = 1,
-                            PrecioUnitario = 0m,
-                            ProductoId = 3,
-                            Subtotal = 150m
+                            PrecioUnitario = 74970.00m,
+                            ProductoId = 3
                         },
                         new
                         {
                             DetalleFacturaId = 3,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 2,
-                            PrecioUnitario = 0m,
-                            ProductoId = 2,
-                            Subtotal = 160m
+                            PrecioUnitario = 65940.00m,
+                            ProductoId = 2
                         },
                         new
                         {
                             DetalleFacturaId = 4,
-                            Cantidad = 1,
+                            Cantidad = 5,
                             FacturaId = 2,
-                            PrecioUnitario = 0m,
-                            ProductoId = 4,
-                            Subtotal = 150m
+                            PrecioUnitario = 47999.40m,
+                            ProductoId = 4
                         },
                         new
                         {
                             DetalleFacturaId = 5,
-                            Cantidad = 1,
+                            Cantidad = 5,
                             FacturaId = 3,
-                            PrecioUnitario = 0m,
-                            ProductoId = 3,
-                            Subtotal = 150m
+                            PrecioUnitario = 35940.00m,
+                            ProductoId = 5
                         },
                         new
                         {
                             DetalleFacturaId = 6,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 3,
-                            PrecioUnitario = 0m,
-                            ProductoId = 5,
-                            Subtotal = 200m
+                            PrecioUnitario = 38999.99m,
+                            ProductoId = 6
                         },
                         new
                         {
                             DetalleFacturaId = 7,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 4,
-                            PrecioUnitario = 0m,
-                            ProductoId = 1,
-                            Subtotal = 40m
+                            PrecioUnitario = 53999.50m,
+                            ProductoId = 10
                         },
                         new
                         {
                             DetalleFacturaId = 8,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 4,
-                            PrecioUnitario = 0m,
-                            ProductoId = 2,
-                            Subtotal = 160m
+                            PrecioUnitario = 83940.00m,
+                            ProductoId = 7
                         },
                         new
                         {
                             DetalleFacturaId = 9,
-                            Cantidad = 2,
+                            Cantidad = 5,
                             FacturaId = 5,
-                            PrecioUnitario = 0m,
-                            ProductoId = 3,
-                            Subtotal = 300m
+                            PrecioUnitario = 41940.00m,
+                            ProductoId = 9
                         },
                         new
                         {
                             DetalleFacturaId = 10,
-                            Cantidad = 1,
+                            Cantidad = 5,
                             FacturaId = 5,
-                            PrecioUnitario = 0m,
-                            ProductoId = 5,
-                            Subtotal = 40m
+                            PrecioUnitario = 59999.40m,
+                            ProductoId = 8
                         });
                 });
 
@@ -344,37 +331,37 @@ namespace CyHTechnoStore.Migrations
                         new
                         {
                             FacturaAdminId = 1,
-                            FechaRegistro = new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProveedorId = 1,
                             UsuarioId = 1
                         },
                         new
                         {
                             FacturaAdminId = 2,
-                            FechaRegistro = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProveedorId = 2,
-                            UsuarioId = 3
+                            UsuarioId = 2
                         },
                         new
                         {
                             FacturaAdminId = 3,
-                            FechaRegistro = new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProveedorId = 3,
-                            UsuarioId = 5
+                            UsuarioId = 3
                         },
                         new
                         {
                             FacturaAdminId = 4,
-                            FechaRegistro = new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProveedorId = 4,
-                            UsuarioId = 7
+                            UsuarioId = 4
                         },
                         new
                         {
                             FacturaAdminId = 5,
-                            FechaRegistro = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProveedorId = 5,
-                            UsuarioId = 9
+                            UsuarioId = 5
                         });
                 });
 
@@ -402,31 +389,31 @@ namespace CyHTechnoStore.Migrations
                         new
                         {
                             FacturaId = 1,
-                            FechaRegistro = new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UsuarioId = 2
-                        },
-                        new
-                        {
-                            FacturaId = 2,
-                            FechaRegistro = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UsuarioId = 4
-                        },
-                        new
-                        {
-                            FacturaId = 3,
-                            FechaRegistro = new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UsuarioId = 6
                         },
                         new
                         {
-                            FacturaId = 4,
-                            FechaRegistro = new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FacturaId = 2,
+                            FechaRegistro = new DateTime(2025, 4, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UsuarioId = 7
+                        },
+                        new
+                        {
+                            FacturaId = 3,
+                            FechaRegistro = new DateTime(2025, 4, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UsuarioId = 8
                         },
                         new
                         {
+                            FacturaId = 4,
+                            FechaRegistro = new DateTime(2025, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UsuarioId = 9
+                        },
+                        new
+                        {
                             FacturaId = 5,
-                            FechaRegistro = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UsuarioId = 10
                         });
                 });
@@ -476,110 +463,110 @@ namespace CyHTechnoStore.Migrations
                             ProductoId = 1,
                             CategoriaId = 1,
                             Descripcion = "Teléfono móvil con pantalla AMOLED y triple cámara de alta resolución.",
-                            FechaRegistro = new DateTime(2023, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/samsung_s23.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://cdn1.smartprix.com/rx-izLSMVlI0-w1200-h1200/zLSMVlI0.jpg",
                             Nombre = "Samsung Galaxy S23",
-                            PrecioUnitario = 849.99m,
-                            Stock = 50
+                            PrecioUnitario = 50940.99m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 2,
                             CategoriaId = 1,
                             Descripcion = "Teléfono inteligente con tecnología Face ID y cámara de 48 MP.",
-                            FechaRegistro = new DateTime(2023, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/iphone_14_pro.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://phonesdata.com/files/models/Apple-iPhone-14-Pro-907.jpg",
                             Nombre = "iPhone 14 Pro",
-                            PrecioUnitario = 1099.00m,
-                            Stock = 30
+                            PrecioUnitario = 65940.00m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 3,
                             CategoriaId = 2,
                             Descripcion = "Laptop ultradelgada con pantalla táctil y procesador Intel i7.",
-                            FechaRegistro = new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/dell_xps_13.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://i.pcmag.com/imagery/reviews/06Ug0e0tlPFOh5qZAAcpq10-1.fit_lim.size_1200x630.v1688849689.jpg",
                             Nombre = "Dell XPS 13",
-                            PrecioUnitario = 1249.50m,
-                            Stock = 20
+                            PrecioUnitario = 74970.00m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 4,
                             CategoriaId = 2,
                             Descripcion = "Computadora portátil con buen rendimiento para el trabajo diario.",
-                            FechaRegistro = new DateTime(2023, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/hp_pavilion_15.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://vitinhthienan.vn/upload/hinhanh/hp-all/ban-phim-laptop-hp/keyboard-hp-15-ab030tu/hp-15-ab030tu.jpg",
                             Nombre = "HP Pavilion 15",
-                            PrecioUnitario = 799.99m,
-                            Stock = 40
+                            PrecioUnitario = 47999.40m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 5,
                             CategoriaId = 3,
                             Descripcion = "Tableta de alto rendimiento con chip M1 y pantalla de 10.9 pulgadas.",
-                            FechaRegistro = new DateTime(2023, 7, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/ipad_air_2022.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://cdn.arstechnica.net/wp-content/uploads/2022/03/2022-iPad-Air-front-on-800x546.jpeg",
                             Nombre = "iPad Air 2022",
-                            PrecioUnitario = 599.00m,
-                            Stock = 35
+                            PrecioUnitario = 35940.00m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 6,
                             CategoriaId = 3,
                             Descripcion = "Tableta Android con gran rendimiento y pantalla AMOLED.",
-                            FechaRegistro = new DateTime(2023, 8, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/galaxy_tab_s8.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://www.zdnet.com/a/img/2022/07/17/fd8b66a7-f705-42d6-af93-08afa6c0965a/samsung-galaxy-tab-s8-ultra-8.jpg",
                             Nombre = "Samsung Galaxy Tab S8",
-                            PrecioUnitario = 649.99m,
-                            Stock = 25
+                            PrecioUnitario = 38999.99m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 7,
                             CategoriaId = 4,
                             Descripcion = "Televisor OLED con resolución 4K y compatibilidad con Dolby Vision.",
-                            FechaRegistro = new DateTime(2023, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/lg_oled_c2.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://th.bing.com/th/id/OIP.LApG9RSTogWAqc7KM05JAgHaE6?rs=1&pid=ImgDetMain",
                             Nombre = "LG OLED C2 55",
-                            PrecioUnitario = 1399.00m,
-                            Stock = 15
+                            PrecioUnitario = 83940.00m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 8,
                             CategoriaId = 4,
                             Descripcion = "Smart TV de 55 pulgadas con tecnología QLED y control por voz.",
-                            FechaRegistro = new DateTime(2023, 9, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/samsung_qled_q70.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://th.bing.com/th/id/OIP.zYVsmU5Mk9SPgGfjTkmk4AHaE8?rs=1&pid=ImgDetMain",
                             Nombre = "Samsung QLED Q70",
-                            PrecioUnitario = 999.99m,
-                            Stock = 18
+                            PrecioUnitario = 59999.40m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 9,
                             CategoriaId = 5,
                             Descripcion = "Cámara digital sin espejo ideal para fotografía profesional.",
-                            FechaRegistro = new DateTime(2023, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/canon_eos_m50.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://www.bhphotovideo.com/images/images1000x1000/canon_4728c006_eos_m50_mark_ii_1598385.jpg",
                             Nombre = "Canon EOS M50",
-                            PrecioUnitario = 699.00m,
-                            Stock = 22
+                            PrecioUnitario = 41940.00m,
+                            Stock = 10
                         },
                         new
                         {
                             ProductoId = 10,
                             CategoriaId = 5,
                             Descripcion = "Cámara compacta de lentes intercambiables con enfoque automático rápido.",
-                            FechaRegistro = new DateTime(2023, 10, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImagenUrl = "imagenes/productos/sony_a6400.jpg",
+                            FechaRegistro = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ImagenUrl = "https://i5.walmartimages.com/asr/49d86635-3a17-4550-a3ac-937b3bd546a7_1.007c196265cf588fec8a2911a6659373.jpeg",
                             Nombre = "Sony Alpha a6400",
-                            PrecioUnitario = 899.99m,
-                            Stock = 17
+                            PrecioUnitario = 53999.50m,
+                            Stock = 10
                         });
                 });
 
@@ -665,116 +652,6 @@ namespace CyHTechnoStore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CyH_Techno_Store.Models.Transacciones", b =>
-                {
-                    b.Property<int>("TransaccionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransaccionId"));
-
-                    b.Property<int>("FacturaId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Monto")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TransaccionId");
-
-                    b.HasIndex("FacturaId");
-
-                    b.ToTable("Transacciones", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            TransaccionId = 1,
-                            FacturaId = 1,
-                            FechaRegistro = new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 37984.50m,
-                            Tipo = "Gasto"
-                        },
-                        new
-                        {
-                            TransaccionId = 2,
-                            FacturaId = 2,
-                            FechaRegistro = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 63748.95m,
-                            Tipo = "Gasto"
-                        },
-                        new
-                        {
-                            TransaccionId = 3,
-                            FacturaId = 3,
-                            FechaRegistro = new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 89129.80m,
-                            Tipo = "Gasto"
-                        },
-                        new
-                        {
-                            TransaccionId = 4,
-                            FacturaId = 4,
-                            FechaRegistro = new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 68964.60m,
-                            Tipo = "Gasto"
-                        },
-                        new
-                        {
-                            TransaccionId = 5,
-                            FacturaId = 5,
-                            FechaRegistro = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 30299.15m,
-                            Tipo = "Gasto"
-                        },
-                        new
-                        {
-                            TransaccionId = 6,
-                            FacturaId = 1,
-                            FechaRegistro = new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 350.00m,
-                            Tipo = "Ingreso"
-                        },
-                        new
-                        {
-                            TransaccionId = 7,
-                            FacturaId = 2,
-                            FechaRegistro = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 310.00m,
-                            Tipo = "Ingreso"
-                        },
-                        new
-                        {
-                            TransaccionId = 8,
-                            FacturaId = 3,
-                            FechaRegistro = new DateTime(2024, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 350.00m,
-                            Tipo = "Ingreso"
-                        },
-                        new
-                        {
-                            TransaccionId = 9,
-                            FacturaId = 4,
-                            FechaRegistro = new DateTime(2024, 11, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 200.00m,
-                            Tipo = "Ingreso"
-                        },
-                        new
-                        {
-                            TransaccionId = 10,
-                            FacturaId = 5,
-                            FechaRegistro = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 340.00m,
-                            Tipo = "Ingreso"
-                        });
-                });
-
             modelBuilder.Entity("CyH_Techno_Store.Models.Usuarios", b =>
                 {
                     b.Property<int>("UsuarioId")
@@ -825,122 +702,122 @@ namespace CyHTechnoStore.Migrations
                         new
                         {
                             UsuarioId = 1,
-                            Correo = "admin1@gmail.com",
+                            Correo = "AdminPedro@gmail.com",
                             Direccion = "Calle Principal #1",
-                            FechaRegistro = new DateTime(2020, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "1234567890123456789",
-                            Password = "Qwe123...",
+                            Password = "Pedro50...",
                             Role = "Admin",
                             Telefono = "8091234567",
-                            UserName = "Admin1"
+                            UserName = "AdminPedro"
                         },
                         new
                         {
                             UsuarioId = 2,
-                            Correo = "user1@gmail.com",
+                            Correo = "AdminJose@gmail.com",
                             Direccion = "Avenida Siempre Viva #2",
-                            FechaRegistro = new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "9876543210987654321",
-                            Password = "Asd123...",
-                            Role = "User",
+                            Password = "Josep777",
+                            Role = "Admin",
                             Telefono = "8092345678",
-                            UserName = "User1"
+                            UserName = "AdminJose"
                         },
                         new
                         {
                             UsuarioId = 3,
-                            Correo = "admin2@gmail.com",
+                            Correo = "AdminSusan@gmail.com",
                             Direccion = "Calle Luna #3",
-                            FechaRegistro = new DateTime(2021, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "1111222233334444555",
-                            Password = "Admin234...",
+                            Password = "GatitaLinda15",
                             Role = "Admin",
                             Telefono = "8093456789",
-                            UserName = "Admin2"
+                            UserName = "AdminSusan"
                         },
                         new
                         {
                             UsuarioId = 4,
-                            Correo = "user2@gmail.com",
+                            Correo = "AdminVannesa@gmail.com",
                             Direccion = "Calle Sol #4",
-                            FechaRegistro = new DateTime(2023, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "5555666677778888999",
-                            Password = "User234...",
-                            Role = "User",
+                            Password = "Venaros60...",
+                            Role = "Admin",
                             Telefono = "8094567890",
-                            UserName = "User2"
+                            UserName = "AdminVannesa"
                         },
                         new
                         {
                             UsuarioId = 5,
-                            Correo = "admin3@gmail.com",
+                            Correo = "AdminJuan@gmail.com",
                             Direccion = "Calle 5 de Abril",
-                            FechaRegistro = new DateTime(2022, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "1122334455667788990",
-                            Password = "Admin345...",
+                            Password = "Master...200M",
                             Role = "Admin",
                             Telefono = "8291234567",
-                            UserName = "Admin3"
+                            UserName = "AdminJuan"
                         },
                         new
                         {
                             UsuarioId = 6,
-                            Correo = "user3@gmail.com",
+                            Correo = "FloresJJJ@gmail.com",
                             Direccion = "Avenida Las Palmas",
-                            FechaRegistro = new DateTime(2024, 3, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "9988776655443322110",
-                            Password = "User345...",
+                            Password = "Mis12Flores",
                             Role = "User",
                             Telefono = "8292345678",
-                            UserName = "User3"
+                            UserName = "FloresJJJ"
                         },
                         new
                         {
                             UsuarioId = 7,
-                            Correo = "admin4@gmail.com",
+                            Correo = "Tengo4Lobos@gmail.com",
                             Direccion = "Residencial Brisas del Este",
-                            FechaRegistro = new DateTime(2019, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "1234432112344321123",
-                            Password = "Admin456...",
-                            Role = "Admin",
+                            Password = "Lobos9999",
+                            Role = "User",
                             Telefono = "8493456789",
-                            UserName = "Admin4"
+                            UserName = "LoboAterrador"
                         },
                         new
                         {
                             UsuarioId = 8,
-                            Correo = "user4@gmail.com",
+                            Correo = "Melon14@gmail.com",
                             Direccion = "Villa Mella, Santo Domingo",
-                            FechaRegistro = new DateTime(2021, 8, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "3211233211233211234",
-                            Password = "User456...",
+                            Password = "van999Plantas",
                             Role = "User",
                             Telefono = "8494567890",
-                            UserName = "User4"
+                            UserName = "PlantasMuchas"
                         },
                         new
                         {
                             UsuarioId = 9,
-                            Correo = "admin5@gmail.com",
+                            Correo = "ResposteraJulia@gmail.com",
                             Direccion = "Ensanche La Fe",
-                            FechaRegistro = new DateTime(2023, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "1231231231231231231",
-                            Password = "Admin567...",
-                            Role = "Admin",
+                            Password = "PastelDePapa20",
+                            Role = "User",
                             Telefono = "8095678901",
-                            UserName = "Admin5"
+                            UserName = "ResposteraJulia"
                         },
                         new
                         {
                             UsuarioId = 10,
-                            Correo = "user5@gmail.com",
+                            Correo = "MarVelous@gmail.com",
                             Direccion = "Zona Colonial",
-                            FechaRegistro = new DateTime(2025, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaRegistro = new DateTime(2025, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumeroTarjeta = "3213213213213213213",
-                            Password = "User567...",
+                            Password = "VenusVSTierra",
                             Role = "User",
                             Telefono = "8295678901",
-                            UserName = "User5"
+                            UserName = "Mariano111"
                         });
                 });
 
@@ -1021,25 +898,6 @@ namespace CyHTechnoStore.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
-                });
-
-            modelBuilder.Entity("CyH_Techno_Store.Models.Transacciones", b =>
-                {
-                    b.HasOne("CyH_Techno_Store.Models.FacturaAdmins", "FacturaAdmins")
-                        .WithMany()
-                        .HasForeignKey("FacturaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CyH_Techno_Store.Models.Facturas", "Facturas")
-                        .WithMany()
-                        .HasForeignKey("FacturaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FacturaAdmins");
-
-                    b.Navigation("Facturas");
                 });
 
             modelBuilder.Entity("CyH_Techno_Store.Models.Categoria", b =>
