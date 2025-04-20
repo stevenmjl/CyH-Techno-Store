@@ -1,89 +1,148 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
+﻿@inherits LayoutComponentBase
+
+<style>
+    .top-navbar {
+        min-height: 50px;
+        background-color: #0d6efd !important;
+    }
+
+    .navbar-container {
+        display: flex;
+        width: 100%;
+        align-items: stretch; /* Asegura misma altura para todos */
+    }
+
+    .nav-scroll-container {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        align-items: center; /* Centrado vertical */
+    }
+
+        .nav-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+    .nav-item {
+        display: flex !important;
+        align-items: center !important; /* Centrado vertical interno */
+        height: 100%; /* Misma altura para todos */
+    }
+
+    .nav-link {
+        padding: 0 0.8rem !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 50px; /* Altura fija igual a la navbar */
+        white-space: nowrap;
+    }
+
+        .nav-link span {
+            display: flex;
+            align-items: center; /* Alineación perfecta texto/icono */
+            line-height: 1; /* Elimina espacio extra vertical */
+        }
+
+    .nav-icon {
+        font-size: 1.1rem;
+        margin-right: 0.4rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+        margin-right: 1.5rem;
+        display: flex;
+        align-items: center;
+        height: 50px;
+    }
+</style>
+
+<div class="navbar navbar-dark top-navbar px-3">
+    <div class="container-fluid navbar-container">
         <a class="navbar-brand" href="">CyH-Techno-Store</a>
-    </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+        <div class="nav-scroll-container">
+            <!-- Home (accesible para todos) -->
+            <div class="nav-item">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span><span class="bi bi-house-door-fill nav-icon"></span> Home</span>
+                </NavLink>
+            </div>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <!-- Home (accesible para todos) -->
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill fs-4 align-items-center d-flex" aria-hidden="true"></span> Home
-            </NavLink>
+            <!-- Productos (accesible para Admin y User) -->
+            <AuthorizeView Roles="Admin, User">
+                <Authorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Producto/Index">
+                            <span><span class="bi bi-box-seam nav-icon"></span> Productos</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="User">
+                <Authorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="carrito">
+                            <span><span class="bi bi-cart3 nav-icon"></span> Carrito</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <!-- Sección de Administración (solo Admin) -->
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <!-- Categorías -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Categoria/Index">
+                            <span><span class="bi bi-tags nav-icon"></span> Categorías</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Facturas de venta -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Factura/Index">
+                            <span><span class="bi bi-receipt nav-icon"></span> Facturas</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="DetalleFactura/Index">
+                            <span><span class="bi bi-receipt nav-icon"></span> Detalles</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Facturas de compra -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="FacturaAdmin/Index">
+                            <span><span class="bi bi-file-earmark-text nav-icon"></span> F. Compra</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="DetalleFacturaAdmin/Index">
+                            <span><span class="bi bi-file-earmark-text nav-icon"></span> D. Compra</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Proveedores -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Proveedor/Index">
+                            <span><span class="bi bi-truck nav-icon"></span> Proveedores</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Usuarios -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Usuario/Index">
+                            <span><span class="bi bi-people nav-icon"></span> Usuarios</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
-
-        <!-- Productos (accesible para Admin y User) -->
-        <AuthorizeView Roles="Admin, User">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Producto/Index">
-                        <span class="bi bi-box-seam fs-4 align-items-center d-flex" aria-hidden="true"></span> Productos
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
-        <AuthorizeView Roles="User">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="carrito">
-                        <span class="bi bi-cart3 fs-4 align-items-center d-flex" aria-hidden="true"></span> Carrito
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
-        <!-- Sección de Administración (solo Admin) -->
-        <AuthorizeView Roles="Admin">
-            <Authorized>
-                <!-- Categorías -->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Categoria/Index">
-                        <span class="bi bi-tags fs-4 align-items-center d-flex" aria-hidden="true"></span> Categorías
-                    </NavLink>
-                </div>
-
-                <!-- Facturas de venta -->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Factura/Index">
-                        <span class="bi bi-receipt fs-4 align-items-center d-flex" aria-hidden="true"></span> Facturas Venta
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="DetalleFactura/Index">
-                        <span class="bi bi-receipt fs-4 align-items-center d-flex" aria-hidden="true"></span> Detalles Facturas Venta
-                    </NavLink>
-                </div>
-
-                <!-- Facturas de compra -->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="FacturaAdmin/Index">
-                        <span class="bi bi-file-earmark-text fs-4 align-items-center d-flex" aria-hidden="true"></span> Facturas Compra
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="DetalleFacturaAdmin/Index">
-                        <span class="bi bi-file-earmark-text fs-4 align-items-center d-flex" aria-hidden="true"></span> Detalles Facturas Compra
-                    </NavLink>
-                </div>
-
-                <!-- Proveedores -->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Proveedor/Index">
-                        <span class="bi bi-truck fs-4 align-items-center d-flex" aria-hidden="true"></span> Proveedores
-                    </NavLink>
-                </div>
-
-                <!-- Usuarios -->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Usuario/Index">
-                        <span class="bi bi-people fs-4 align-items-center d-flex" aria-hidden="true"></span> Usuarios
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-    </nav>
+    </div>
 </div>
