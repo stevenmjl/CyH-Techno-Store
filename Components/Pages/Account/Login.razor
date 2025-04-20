@@ -51,15 +51,18 @@
                 .Usuarios
                 .Where(u => u.UserName == Model.UserName)
                 .FirstOrDefault();
-        if(UserAccounts is null || UserAccounts.Password != Model.Password)
+
+        if (UserAccounts is null || UserAccounts.Password != Model.Password)
         {
             errorMessage = "Usuario inválido o contraseña.";
             return;
         }
-        else{
+        else
+        {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, Model.UserName),
+                new Claim(ClaimTypes.NameIdentifier, UserAccounts.UsuarioId.ToString()),
                 new Claim(ClaimTypes.Role, UserAccounts.Role)
             };
 
