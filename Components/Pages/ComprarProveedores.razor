@@ -1,0 +1,269 @@
+﻿@page "/comprasProveedor/"
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ProductosService ProductosService
+@inject ProveedoresService ProveedoresService
+@inject FacturaAdminsService FacturasService
+@using System.Security.Claims
+@inject NavigationManager navigation
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Compras a Proveedores</PageTitle>
+<Toasts class="p-3" Messages="Mensajes" Placement="ToastsPlacement.TopRight"
+        AutoHide="true" Delay="5000" />
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <!-- Cabecera -->
+        <div class="card-header bg-primary text-white">
+            <h3>Comprar Artículos de Proveedores</h3>
+            <p>Administrador: @UsuarioId</p>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="card-body">
+            <!-- Selección de Proveedor -->
+            <div class="mb-4">
+                <h5>Proveedor</h5>
+                <InputSelect @bind-Value="ProveedorSeleccionado" class="form-control">
+                    <option value="0">Seleccione un proveedor</option>
+                    @foreach (var prov in Proveedores)
+                    {
+                        <option value="@prov.ProveedorId">@prov.Nombres</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <!-- Buscador de Productos -->
+            <div class="mb-4">
+                <h5>Agregar Productos</h5>
+                <div class="input-group">
+                    <input type="text" class="form-control"
+                           @bind="terminoBusqueda"
+                           @bind:event="oninput"
+                           placeholder="Buscar producto..." />
+                    <button class="btn btn-outline-secondary"
+                            @onclick="BuscarProductos">
+                        Buscar
+                    </button>
+                </div>
+
+                <!-- Resultados de búsqueda -->
+                @if (ResultadosBusqueda.Any())
+                {
+                    <div class="list-group mt-2">
+                        @foreach (var prod in ResultadosBusqueda)
+                        {
+                            <button class="list-group-item list-group-item-action"
+                                    @onclick="() => AgregarProducto(prod)">
+                                @prod.Nombre - Stock: @prod.Stock
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Lista de productos seleccionados -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Stock Actual</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ProductosSeleccionados)
+                    {
+                        <tr>
+                            <td>@item.Producto.Nombre</td>
+                            <td>@item.Producto.Stock</td>
+                            <td>
+                                <InputNumber class="form-control"
+                                             @bind-Value="item.Cantidad" min="1" />
+                            </td>
+                            <td>
+                                <InputNumber class="form-control"
+                                             @bind-Value="item.PrecioUnitario" min="0.01" step="0.01" />
+                            </td>
+                            <td>@((item.Cantidad * item.PrecioUnitario).ToString("C"))</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => RemoverProducto(item)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-active">
+                        <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                        <td><strong>@ProductosSeleccionados.Sum(p => p.Cantidad * p.PrecioUnitario).ToString("C")</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>Total: @ProductosSeleccionados.Sum(p => p.Cantidad * p.PrecioUnitario).ToString("C")</h5>
+                </div>
+                <div>
+                    <button class="btn btn-success"
+                            disabled="@(ProveedorSeleccionado == 0 || !ProductosSeleccionados.Any())"
+                            @onclick="FinalizarCompra">
+                        <i class="bi bi-cash-coin"></i> Procesar Compra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Modelos y datos
+    private int UsuarioId { get; set; }
+    private List<Proveedores> Proveedores { get; set; } = new();
+    private int ProveedorSeleccionado { get; set; }
+    private string terminoBusqueda = string.Empty;
+    private List<Productos> ResultadosBusqueda { get; set; } = new();
+    private List<DetalleCompra> ProductosSeleccionados { get; set; } = new();
+
+    // Clase auxiliar para el detalle temporal
+    private class DetalleCompra
+    {
+        public Productos Producto { get; set; } = new();
+        public int Cantidad { get; set; } = 1;
+        public decimal PrecioUnitario { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerUsuarioId();
+        await CargarProveedores();
+    }
+
+    private async Task ObtenerUsuarioId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
+        {
+            UsuarioId = userId;
+        }
+        else
+        {
+            navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task CargarProveedores()
+    {
+        Proveedores = await ProveedoresService.Listar();
+    }
+
+    private async Task BuscarProductos()
+    {
+        if (!string.IsNullOrWhiteSpace(terminoBusqueda))
+        {
+            var todosProductos = await ProductosService.Listar();
+            ResultadosBusqueda = todosProductos
+                .Where(p => p.Nombre.Contains(terminoBusqueda, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private void AgregarProducto(Productos producto)
+    {
+        if (!ProductosSeleccionados.Any(p => p.Producto.ProductoId == producto.ProductoId))
+        {
+            ProductosSeleccionados.Add(new DetalleCompra
+                {
+                    Producto = producto,
+                    Cantidad = 1,
+                    PrecioUnitario = producto.PrecioUnitario
+                });
+        }
+        terminoBusqueda = string.Empty;
+        ResultadosBusqueda.Clear();
+    }
+
+    private void RemoverProducto(DetalleCompra item)
+    {
+        ProductosSeleccionados.Remove(item);
+    }
+
+    private async Task FinalizarCompra()
+    {
+        // Validaciones básicas
+        if (ProveedorSeleccionado == 0)
+        {
+            MostrarMensaje(ToastType.Warning, "Debe seleccionar un proveedor");
+            return;
+        }
+
+        if (!ProductosSeleccionados.Any())
+        {
+            MostrarMensaje(ToastType.Warning, "Debe agregar al menos un producto");
+            return;
+        }
+
+        // Crear la factura
+        var factura = new FacturaAdmins
+            {
+                FechaRegistro = DateTime.Now,
+                UsuarioId = this.UsuarioId,
+                ProveedorId = ProveedorSeleccionado,
+                DetalleFacturaAdmin = ProductosSeleccionados.Select(p => new DetalleFacturaAdmins
+                {
+                    ProductoId = p.Producto.ProductoId,
+                    Cantidad = p.Cantidad,
+                    PrecioUnitario = p.PrecioUnitario
+                }).ToList()
+            };
+
+        try
+        {
+            var resultado = await FacturasService.Guardar(factura);
+
+        if (resultado)
+        {
+            // Obtener la factura recién creada con su ID
+            var facturaCreada = await FacturasService.Buscar(factura.FacturaAdminId);
+                MostrarMensaje(ToastType.Success, "Compra registrada exitosamente!");
+                ProductosSeleccionados.Clear();
+                ProveedorSeleccionado = 0;
+            }
+            else
+            {
+                MostrarMensaje(ToastType.Danger, "Error al registrar la compra");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje(ToastType.Danger, $"Error crítico: {ex.Message}");
+        }
+    }
+
+    private List<ToastMessage> Mensajes = new();
+
+    private void MostrarMensaje(ToastType tipo, string contenido)
+    {
+        Mensajes.Add(new ToastMessage
+            {
+                Type = tipo,
+                Title = tipo == ToastType.Success ? "Éxito" : "Atención",
+                Message = contenido,
+                HelpText = DateTime.Now.ToString("g")
+            });
+        StateHasChanged();
+    }
+}
