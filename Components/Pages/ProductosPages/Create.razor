@@ -1,0 +1,165 @@
+﻿@page "/Producto/Create"
+@rendermode InteractiveServer
+@inject ProductosService productosService
+@inject CategoriasService categoriasService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Crear producto</PageTitle>
+
+<EditForm Model="Producto" OnValidSubmit="Guardar">
+    <Toasts class="p-3" Messages="Mensajes" Placement="ToastsPlacement.TopRight"
+            AutoHide="true" Delay="5000" />
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            @* Título *@
+            <div class="card-header text-white text-center">
+                <div class="bg-success rounded">
+                    <h1>Registro de productos</h1>
+                </div>
+            </div>
+
+            @* Cuerpo de página *@
+            <div class="card-body">
+                @* Id *@
+                <div class="mb-3 col-2">
+                    <label class="form-label" for="Id">ID</label>
+                    <InputNumber id="Id" class="form-control text-left"
+                                 readonly @bind-Value="UltimoProducto"></InputNumber>
+                </div>
+
+                @* Nombre *@
+                <div class="mb-3 col-6">
+                    <label class="form-label" for="Nombre">Nombre del producto</label>
+                    <InputText id="Nombre" class="form-control"
+                               @bind-Value="Producto.Nombre" placeholder="Ej: Laptop HP EliteBook">
+                    </InputText>
+                    <ValidationMessage For="@(() => Producto.Nombre)"></ValidationMessage>
+                </div>
+
+                @* Categoría *@
+                <div class="mb-3 col-4">
+                    <label class="form-label" for="CategoriaId">Categoría</label>
+                    <InputSelect id="CategoriaId" class="form-control" @bind-Value="Producto.CategoriaId">
+                        <option value="">Seleccione una categoría</option>
+                        @foreach (var categoria in Categorias)
+                        {
+                            <option value="@categoria.CategoriaId">@categoria.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Producto.CategoriaId)"></ValidationMessage>
+                </div>
+
+                @* Precio Unitario *@
+                <div class="mb-3 col-3">
+                    <label class="form-label" for="PrecioUnitario">Precio unitario</label>
+                    <InputNumber id="PrecioUnitario" class="form-control"
+                    @bind-Value="Producto.PrecioUnitario" format="C">
+                    </InputNumber>
+                    <ValidationMessage For="@(() => Producto.PrecioUnitario)"></ValidationMessage>
+                </div>
+
+                @* Fecha de Registro *@
+                <div class="mb-3 col-3">
+                    <label class="form-label" for="FechaRegistro">Fecha de registro</label>
+                    <InputDate id="FechaRegistro" class="form-control"
+                    @bind-Value="Producto.FechaRegistro" readonly>
+                    </InputDate>
+                </div>
+
+                @* Descripción *@
+                <div class="mb-3">
+                    <label class="form-label" for="Descripcion">Descripción</label>
+                    <InputTextArea id="Descripcion" class="form-control"
+                    @bind-Value="Producto.Descripcion" 
+                    placeholder="Ej: Laptop empresarial con procesador Intel Core i7"
+                    rows="3">
+                    </InputTextArea>
+                    <ValidationMessage For="@(() => Producto.Descripcion)"></ValidationMessage>
+                </div>
+
+                @* Imagen URL *@
+                <div class="mb-3">
+                    <label class="form-label" for="ImagenUrl">URL de la imagen</label>
+                    <InputText id="ImagenUrl" class="form-control"
+                    @bind-Value="Producto.ImagenUrl" 
+                    placeholder="Ej: https://ejemplo.com/imagen.jpg">
+                    </InputText>
+                    <ValidationMessage For="@(() => Producto.ImagenUrl)"></ValidationMessage>
+                </div>
+            </div>
+
+            @* Botones de control *@
+            <div class="card-footer d-flex justify-content-center gap-3">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy"></i> Crear
+                </button>
+
+                <a class="btn btn-secondary" href="/Producto/Index">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Productos? Producto { get; set; } = new Productos();
+    private int UltimoProducto;
+    private List<Categoria> Categorias = new List<Categoria>();
+    List<ToastMessage> Mensajes = new List<ToastMessage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UltimoProducto = 1 + await productosService.UltimoId();
+        Categorias = await categoriasService.Listar(c => true);
+        Producto.FechaRegistro = DateTime.Now;
+        Producto.Stock = 0;
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            var nuevo = await productosService.Guardar(Producto);
+            if (nuevo)
+            {
+                MostrarMensaje(ToastType.Success,
+                    $"Producto {Producto.Nombre} ha sido creado correctamente.");
+                Producto = new Productos();
+                UltimoProducto = 1 + await productosService.UltimoId();
+                Producto.FechaRegistro = DateTime.Now;
+            }
+            else
+            {
+                MostrarMensaje(ToastType.Danger, "El producto no se ha podido crear correctamente.");
+            }
+        }
+        else
+        {
+            MostrarMensaje(ToastType.Warning, "Ya existe un producto con este nombre.");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        var existe = await productosService.Existe(Producto.ProductoId, Producto.Nombre);
+        return existe;
+    }
+
+    private void MostrarMensaje(ToastType toastType, string message)
+    {
+        Mensajes.Add(CrearMensaje(toastType, message));
+    }
+
+    private ToastMessage CrearMensaje(ToastType toastType, string message)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = "Notificación",
+            HelpText = $"{DateTime.Now}",
+            Message = message,
+        };
+}
