@@ -73,7 +73,6 @@
                         <th>Descripci&oacute;n</th>
                         <th>Productos Asociados</th>
                         <th>Editar</th>
-                        <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,10 +86,6 @@
                             <td>
                                 <a href="/Categoria/Edit/@categoria.CategoriaId"
                                    class="btn btn-warning bi bi-pencil-square"></a>
-                            </td>
-                            <td>
-                                <a href="/Categoria/Delete/@categoria.CategoriaId"
-                                   class="btn btn-danger bi bi-trash"></a>
                             </td>
                         </tr>
                     }
@@ -112,7 +107,7 @@
 
     private async Task CargarCategorias()
     {
-        ListaCategorias = await categoriasService.Listar(e => true, true); // true para incluir productos
+        ListaCategorias = await categoriasService.Listar(e => true, true);
         valorFiltro = "";
     }
 

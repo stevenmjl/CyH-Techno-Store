@@ -4,52 +4,60 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
-@using CyH_Techno_Store.Models
+<PageTitle>Detalles de Facturas de Administrador</PageTitle>
 
-<h3>Detalles de Facturas de Administrador</h3>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Detalles de Facturas de Administrador</h2>
+        </div>
 
-@if (detalles == null)
-{
-    <p><em>Cargando...</em></p>
-}
-else if (detalles.Count == 0)
-{
-    <p>No hay detalles de facturas de administrador registrados.</p>
-}
-else
-{
-    <table class="table table-hover table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-                <th>Factura Admin</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var detalle in detalles)
-            {
-                <tr>
-                    <td>@detalle.DetalleFacturaAdminId</td>
-                    <td>@detalle.Productos?.Nombre</td>
-                    <td>@detalle.Cantidad</td>
-                    <td>@detalle.PrecioUnitario.ToString("C")</td>
-                    <td>@detalle.Subtotal.ToString("C")</td>
-                    <td>@detalle.FacturaAdmins?.FacturaAdminId</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-info text-center">
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                            <th>Factura Admin ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (detalles.Any())
+                        {
+                            @foreach (var detalle in detalles)
+                            {
+                                <tr class="text-center">
+                                    <td>@detalle.DetalleFacturaAdminId</td>
+                                    <td>@detalle.Productos?.Nombre</td>
+                                    <td>@detalle.Cantidad</td>
+                                    <td>@detalle.PrecioUnitario.ToString("C2")</td>
+                                    <td class="fw-bold">@((detalle.Cantidad * detalle.PrecioUnitario).ToString("C2"))</td>
+                                    <td>@detalle.FacturaAdmins?.FacturaAdminId</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">No hay detalles de facturas de administrador registrados.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     private List<DetalleFacturaAdmins> detalles = new();
 
     protected override async Task OnInitializedAsync()
     {
-        detalles = await DetalleService.ListarTodo(); 
+        detalles = await DetalleService.ListarTodo();
     }
 }

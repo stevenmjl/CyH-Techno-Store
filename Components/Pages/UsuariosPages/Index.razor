@@ -56,13 +56,6 @@
                         </button>
                     </div>
                 </div>
-
-                @* Botón crear *@
-                <div class="col-md-2 text-end">
-                    <a href="/Usuario/Create" class="btn btn-success bi bi-plus-circle">
-                        Crear
-                    </a>
-                </div>
             </div>
 
             @* Tabla con su lista *@
@@ -74,8 +67,6 @@
                         <th>Correo</th>
                         <th>Rol</th>
                         <th>Teléfono</th>
-                        <th>Editar</th>
-                        <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,14 +78,6 @@
                             <td>@usuario.Correo</td>
                             <td>@usuario.Role</td>
                             <td>@usuario.Telefono</td>
-                            <td>
-                                <a href="/Usuario/Edit/@usuario.UsuarioId"
-                                   class="btn btn-warning bi bi-pencil-square"></a>
-                            </td>
-                            <td>
-                                <a href="/Usuario/Delete/@usuario.UsuarioId"
-                                   class="btn btn-danger bi bi-trash"></a>
-                            </td>
                         </tr>
                     }
                 </tbody>

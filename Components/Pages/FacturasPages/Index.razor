@@ -57,13 +57,6 @@
                         </button>
                     </div>
                 </div>
-
-                @* Botón crear *@
-                <div class="col-md-2 text-end">
-                    <a href="/Factura/Create" class="btn btn-success bi bi-plus-circle">
-                        Nueva Factura
-                    </a>
-                </div>
             </div>
 
             @* Tabla de facturas *@
@@ -74,8 +67,6 @@
                             <th>ID</th>
                             <th>Fecha</th>
                             <th>Usuario</th>
-                            <th>Total</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,10 +77,6 @@
                                 <td>@factura.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@factura.Usuarios?.UserName</td>
                                 <td>@factura.DetalleFacturas.Sum(d => d.Subtotal).ToString("C2")</td>
-                                <td>
-                                    <a href="/Factura/Edit/@factura.FacturaId" class="btn btn-warning bi bi-pencil-square me-1"></a>
-                                    <button @onclick="() => EliminarFactura(factura.FacturaId)" class="btn btn-danger bi bi-trash"></button>
-                                </td>
                             </tr>
                             
                             @if (facturasExpandidas.Contains(factura.FacturaId))
@@ -183,11 +170,6 @@
                     f => f.FechaRegistro.Date == fecha.Date, true);
                 break;
                 
-            case "total" when decimal.TryParse(valorFiltro, out decimal total):
-                ListaFacturas = await facturasService.Listar(
-                    f => f.DetalleFacturas.Sum(d => d.Subtotal) == total, true);
-                break;
-                
             default:
                 await CargarFacturas();
                 break;
@@ -211,14 +193,6 @@
         else
         {
             facturasExpandidas.Add(facturaId);
-        }
-    }
-
-    private async Task EliminarFactura(int facturaId)
-    {
-        if (await facturasService.Eliminar(facturaId))
-        {
-            await CargarFacturas();
         }
     }
 }
