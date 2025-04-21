@@ -35,7 +35,6 @@ public class FacturasService(IDbContextFactory<Contexto> dbFactory)
 
         try
         {
-            // Validar stock antes de proceder
             if (!await ValidarStockDisponible(factura))
                 return false;
 
@@ -196,6 +195,7 @@ public class FacturasService(IDbContextFactory<Contexto> dbFactory)
             .Where(f => f.UsuarioId == usuarioId)
             .Include(f => f.DetalleFacturas)
                 .ThenInclude(d => d.Productos)
+                    .ThenInclude(p => p.Categoria)
             .OrderByDescending(f => f.FechaRegistro)
             .ToListAsync();
     }
