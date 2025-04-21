@@ -7,7 +7,7 @@
         position: fixed;
         width: 100%;
         z-index: 1000;
-        top: 3rem;
+        top: auto;
     }
 
     .navbar-container {
@@ -92,29 +92,26 @@
         <a class="navbar-brand" href="">CyH-Techno-Store</a>
 
         <div class="nav-scroll-container">
-            <!-- Home (accesible para todos) -->
+            <!-- (( Accesible para todos )) -->
             <div class="nav-item">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                     <span><span class="bi bi-house-door-fill nav-icon"></span> Home</span>
                 </NavLink>
             </div>
 
-            <!-- Productos (accesible para Admin y User) -->
-            <AuthorizeView Roles="Admin, User">
-                <Authorized>
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="Producto/Index">
-                            <span><span class="bi bi-box-seam nav-icon"></span> Productos</span>
-                        </NavLink>
-                    </div>
-                </Authorized>
-            </AuthorizeView>
-
             <AuthorizeView Roles="User">
                 <Authorized>
+                    <!-- Vista de productos para comprar -->
                     <div class="nav-item">
-                        <NavLink class="nav-link" href="carrito">
-                            <span><span class="bi bi-cart3 nav-icon"></span> Carrito</span>
+                        <NavLink class="nav-link" href="/comprar">
+                            <span><span class="bi bi-cart-fill nav-icon"></span> Ver Productos</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Facturas del cliente -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/miscompras">
+                            <span><span class="bi bi-bag-check-fill nav-icon"></span> Productos comprados</span>
                         </NavLink>
                     </div>
                 </Authorized>
@@ -123,48 +120,80 @@
             <!-- Sección de Administración (solo Admin) -->
             <AuthorizeView Roles="Admin">
                 <Authorized>
-                    <!-- Categorías -->
+                    <!-- Comprar Productos para admin -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/comprasProveedor">
+                            <span><span class="bi bi-cart-plus-fill nav-icon"></span> Comprar</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Categoria -->
                     <div class="nav-item">
                         <NavLink class="nav-link" href="Categoria/Index">
-                            <span><span class="bi bi-tags nav-icon"></span> Categorías</span>
+                            <span><span class="bi bi-bookmarks-fill nav-icon"></span> Categorías</span>
                         </NavLink>
                     </div>
 
-                    <!-- Facturas de venta -->
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="Factura/Index">
-                            <span><span class="bi bi-receipt nav-icon"></span> Facturas</span>
-                        </NavLink>
-                    </div>
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="DetalleFactura/Index">
-                            <span><span class="bi bi-receipt nav-icon"></span> Detalles</span>
-                        </NavLink>
-                    </div>
-
-                    <!-- Facturas de compra -->
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="FacturaAdmin/Index">
-                            <span><span class="bi bi-file-earmark-text nav-icon"></span> F. Compra</span>
-                        </NavLink>
-                    </div>
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="DetalleFacturaAdmin/Index">
-                            <span><span class="bi bi-file-earmark-text nav-icon"></span> D. Compra</span>
-                        </NavLink>
-                    </div>
-
-                    <!-- Proveedores -->
+                    <!-- Proveedor -->
                     <div class="nav-item">
                         <NavLink class="nav-link" href="Proveedor/Index">
-                            <span><span class="bi bi-truck nav-icon"></span> Proveedores</span>
+                            <span><span class="bi bi-truck-front-fill nav-icon"></span> Proveedores</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Producto -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Producto/Index">
+                            <span><span class="bi bi-box-seam-fill nav-icon"></span> Productos</span>
                         </NavLink>
                     </div>
 
                     <!-- Usuarios -->
                     <div class="nav-item">
                         <NavLink class="nav-link" href="Usuario/Index">
-                            <span><span class="bi bi-people nav-icon"></span> Usuarios</span>
+                            <span><span class="bi bi-people-fill nav-icon"></span> Usuarios</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Facturas de venta a Clientes -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="Factura/Index">
+                            <span><span class="bi bi-file-earmark-text-fill nav-icon"></span> Facturas</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="DetalleFactura/Index">
+                            <span><span class="bi bi-card-list nav-icon"></span> Detalles</span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Facturas de compra a Proveedores -->
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="FacturaAdmin/Index">
+                            <span><span class="bi bi-file-earmark-text-fill nav-icon"></span> F. Compra</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="DetalleFacturaAdmin/Index">
+                            <span><span class="bi bi-card-list nav-icon"></span> Det. Compra</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <!-- Login o Logout para todos -->
+            <AuthorizeView>
+                <NotAuthorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/login">
+                            <span><span class="bi bi-box-arrow-in-right nav-icon"></span> Log in</span>
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+                <Authorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/logout">
+                            <span><span class="bi bi-box-arrow-left nav-icon"></span> Log out</span>
                         </NavLink>
                     </div>
                 </Authorized>

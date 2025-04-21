@@ -1,21 +1,9 @@
 ﻿@inherits LayoutComponentBase
 <div class="page">
     <main>
-        <!-- Barra superior con login/logout -->
-        <div class="top-row px-4 bg-light">
-            <div class="d-flex justify-content-end w-100">
-                <AuthorizeView>
-                    <NotAuthorized>
-                        <a class="btn btn-outline-primary btn-sm" href="/login">Login</a>
-                    </NotAuthorized>
-                    <Authorized>
-                        <a class="btn btn-outline-danger btn-sm" href="/logout">Logout</a>
-                    </Authorized>
-                </AuthorizeView>
-            </div>
-        </div>
         <!-- Barra de navegación horizontal -->
         <NavMenu />
+
         <!-- Contenido principal -->
         <article class="content px-4 pt-3">
             @Body
