@@ -84,6 +84,12 @@ public class CategoriasService(IDbContextFactory<Contexto> dbFactory)
             .ToListAsync();
     }
 
+    public async Task<List<Categoria>> Listar()
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+        return await contexto.Categorias.ToListAsync();
+    }
+
     public async Task<int> UltimoId()
     {
         await using var contexto = await dbFactory.CreateDbContextAsync();
