@@ -123,46 +123,6 @@ public class ProductosService(IDbContextFactory<Contexto> dbFactory)
             .ToListAsync();
     }
 
-    public async Task<decimal> CalcularValorTotalInventario()
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-        return await contexto.Productos
-            .SumAsync(p => p.Stock * p.PrecioUnitario);
-    }
-
-    public async Task<bool> ActualizarStock(int productoId, int cantidad)
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-
-        try
-        {
-            var producto = await contexto.Productos.FindAsync(productoId);
-            if (producto == null) return false;
-
-            producto.Stock += cantidad;
-            if (producto.Stock < 0) return false; // Validar no quede negativo
-
-            await contexto.SaveChangesAsync();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<(int TotalProductos, int ProductosBajoStock)> ObtenerEstadisticasInventario(int nivelAlerta = 5)
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-
-        var totalProductos = await contexto.Productos.CountAsync();
-        var productosBajoStock = await contexto.Productos
-            .Where(p => p.Stock <= nivelAlerta)
-            .CountAsync();
-
-        return (totalProductos, productosBajoStock);
-    }
-
     public async Task<int> UltimoId()
     {
         await using var contexto = await dbFactory.CreateDbContextAsync();
@@ -171,29 +131,5 @@ public class ProductosService(IDbContextFactory<Contexto> dbFactory)
             .FirstOrDefaultAsync();
 
         return ultimoProducto?.ProductoId ?? 0;
-    }
-
-    public async Task<bool> ActualizarStockMasivo(Dictionary<int, int> actualizaciones)
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-
-        try
-        {
-            foreach (var (productoId, cantidad) in actualizaciones)
-            {
-                var producto = await contexto.Productos.FindAsync(productoId);
-                if (producto != null)
-                {
-                    producto.Stock += cantidad;
-                }
-            }
-
-            await contexto.SaveChangesAsync();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }
