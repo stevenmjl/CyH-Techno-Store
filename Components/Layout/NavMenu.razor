@@ -4,12 +4,17 @@
     .top-navbar {
         min-height: 50px;
         background-color: #0d6efd !important;
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+        top: 3rem;
     }
 
     .navbar-container {
         display: flex;
         width: 100%;
-        align-items: stretch; /* Asegura misma altura para todos */
+        align-items: center; /* Cambiado de stretch a center para mejor alineación */
+        height: 50px; /* Asegurar altura constante */
     }
 
     .nav-scroll-container {
@@ -17,7 +22,8 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        align-items: center; /* Centrado vertical */
+        align-items: center;
+        height: 50px; /* Altura fija igual para todos */
     }
 
         .nav-scroll-container::-webkit-scrollbar {
@@ -26,8 +32,10 @@
 
     .nav-item {
         display: flex !important;
-        align-items: center !important; /* Centrado vertical interno */
-        height: 100%; /* Misma altura para todos */
+        align-items: center !important;
+        height: 50px !important; /* Forzar la misma altura para todos */
+        margin: 0 !important; /* Eliminar márgenes que pueden causar desalineación */
+        padding: 0 !important; /* Eliminar padding que puede causar desalineación */
     }
 
     .nav-link {
@@ -35,21 +43,30 @@
         color: white !important;
         display: flex !important;
         align-items: center !important;
-        height: 50px; /* Altura fija igual a la navbar */
+        justify-content: center !important; /* Centrado horizontal también */
+        height: 50px !important; /* Forzar altura igual para todos */
         white-space: nowrap;
+        margin: 0 !important; /* Eliminar márgenes */
     }
 
         .nav-link span {
-            display: flex;
-            align-items: center; /* Alineación perfecta texto/icono */
-            line-height: 1; /* Elimina espacio extra vertical */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+            height: 20px !important; /* Altura fija para el contenedor del texto */
         }
 
     .nav-icon {
         font-size: 1.1rem;
         margin-right: 0.4rem;
-        display: flex;
-        align-items: center;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+        /* Asegurar que todos los iconos tengan el mismo tamaño */
+        width: 1.1rem !important;
+        height: 1.1rem !important;
     }
 
     .navbar-brand {
@@ -58,6 +75,15 @@
         display: flex;
         align-items: center;
         height: 50px;
+    }
+
+    /* Reglas específicas para corregir Home y Usuarios */
+    .nav-link span .bi-house-door-fill,
+    .nav-link span .bi-people {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
     }
 </style>
 
