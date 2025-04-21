@@ -1,6 +1,6 @@
 # CyH-Techno-Store
 
-![Cyh-Techno-Store]()
+![Cyh-Techno-Store](https://github.com/user-attachments/assets/bba7b921-e071-4fae-84f3-dc7b2b27653e)
 
 ## Participantes
 
