@@ -19,6 +19,7 @@ builder.Services.AddDbContextFactory<Contexto>(c => c.UseSqlServer(ConStr));
 
 // Inyeción de servicios a usar
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<UsuariosService>();
 builder.Services.AddScoped<ProductosService>();
