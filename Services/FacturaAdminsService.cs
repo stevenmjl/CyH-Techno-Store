@@ -159,21 +159,4 @@ public class FacturaAdminsService(IDbContextFactory<Contexto> dbFactory)
 
         return await query.ToListAsync();
     }
-
-    public async Task<decimal> CalcularTotalFactura(int facturaAdminId)
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-        return await contexto.DetalleFacturaAdmins
-            .Where(d => d.FacturaAdminId == facturaAdminId)
-            .SumAsync(d => d.Subtotal);
-    }
-
-    public async Task<List<DetalleFacturaAdmins>> ListarTodo()
-    {
-        await using var contexto = await dbFactory.CreateDbContextAsync();
-        return await contexto.DetalleFacturaAdmins
-            .Include(d => d.Productos)
-            .Include(d => d.FacturaAdmins)
-            .ToListAsync();
-    }
 }
