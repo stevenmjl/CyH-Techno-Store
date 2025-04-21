@@ -1,0 +1,170 @@
+﻿@page "/miscompras"
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
+@inject FacturasService FacturasService
+@inject UsuariosService UsuariosService
+@using System.Security.Claims
+@inject NavigationManager navigation
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "User")]
+
+<PageTitle>Mis Compras</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <!-- Cabecera -->
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3>Historial de Compras</h3>
+                <div>
+                    <span class="fs-5">Cliente: @UserName</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="card-body">
+            @if (Compras == null)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            }
+            else if (!Compras.Any())
+            {
+                <div class="alert alert-info">
+                    No tienes compras registradas.
+                </div>
+            }
+            else
+            {
+                <div class="accordion" id="comprasAccordion">
+                    @foreach (var factura in Compras)
+                    {
+                        <div class="accordion-item mb-3">
+                            <h2 class="accordion-header" id="heading@(factura.FacturaId)">
+                                <button class="accordion-button collapsed" type="button" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#collapse@(factura.FacturaId)" 
+                                        aria-expanded="false" 
+                                        aria-controls="collapse@(factura.FacturaId)">
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span class="fw-bold">Compra #@factura.FacturaId</span>
+                                        <span class="text-muted me-3">@factura.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</span>
+                                        <span class="badge bg-success fs-6">
+                                            Total: @factura.DetalleFacturas.Sum(d => d.Subtotal).ToString("C")
+                                        </span>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse@(factura.FacturaId)" class="accordion-collapse collapse" 
+                                 aria-labelledby="heading@(factura.FacturaId)" 
+                                 data-bs-parent="#comprasAccordion">
+                                <div class="accordion-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Producto</th>
+                                                    <th>Precio Unitario</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var detalle in factura.DetalleFacturas)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                @if (!string.IsNullOrEmpty(detalle.Productos?.ImagenUrl))
+                                                                {
+                                                                    <img src="@detalle.Productos.ImagenUrl" 
+                                                                         class="product-image-small me-3" 
+                                                                         alt="@detalle.Productos.Nombre">
+                                                                }
+                                                                <div>
+                                                                    <div class="fw-bold">@detalle.Productos?.Nombre</div>
+                                                                    <small class="text-muted">@detalle.Productos?.Categoria?.Nombre</small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>@detalle.PrecioUnitario.ToString("C")</td>
+                                                        <td>@detalle.Cantidad</td>
+                                                        <td>@detalle.Subtotal.ToString("C")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-active">
+                                                    <td colspan="3" class="text-end fw-bold">Total:</td>
+                                                    <td class="fw-bold">@factura.DetalleFacturas.Sum(d => d.Subtotal).ToString("C")</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-image-small {
+        height: 60px;
+        width: 60px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: #212529;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0,0,0,.125);
+    }
+</style>
+
+@code {
+    private int UsuarioId { get; set; }
+    private string UserName { get; set; } = string.Empty;
+    private List<Facturas> Compras { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerUsuarioId();
+        await CargarCompras();
+    }
+
+    private async Task ObtenerUsuarioId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier);
+        var userNameClaim = authState.User.FindFirst(ClaimTypes.Name);
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
+        {
+            UsuarioId = userId;
+            var usuario = await UsuariosService.Buscar(UsuarioId);
+            UserName = usuario?.UserName ?? "Cliente";
+        }
+        else
+        {
+            navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task CargarCompras()
+    {
+        Compras = await FacturasService.ListarPorUsuario(UsuarioId);
+    }
+}
