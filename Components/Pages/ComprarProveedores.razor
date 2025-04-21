@@ -83,11 +83,17 @@
                             <td>@item.Producto.Stock</td>
                             <td>
                                 <InputNumber class="form-control"
-                                             @bind-Value="item.Cantidad" min="1" />
+                                             @bind-Value="item.Cantidad"
+                                             min="1"
+                                             @oninput="() => ActualizarCantidad(item)"
+                                             @onchange="() => ActualizarCantidad(item)" />
                             </td>
                             <td>
                                 <InputNumber class="form-control"
-                                             @bind-Value="item.PrecioUnitario" min="0.01" step="0.01" />
+                                             @bind-Value="item.PrecioUnitario"
+                                             min="0.01"
+                                             step="0.01"
+                                             @oninput="() => { if(item.PrecioUnitario < 0.01m) item.PrecioUnitario = 0.01m; }" />
                             </td>
                             <td>@((item.Cantidad * item.PrecioUnitario).ToString("C"))</td>
                             <td>
@@ -219,6 +225,22 @@
             return;
         }
 
+        // Validar y corregir cantidades negativas
+        foreach (var item in ProductosSeleccionados)
+        {
+            if (item.Cantidad < 1)
+            {
+                item.Cantidad = 1;
+                MostrarMensaje(ToastType.Info, $"La cantidad de {item.Producto.Nombre} fue ajustada a 1 (no se permiten valores negativos)");
+            }
+
+            if (item.PrecioUnitario < 0.01m)
+            {
+                item.PrecioUnitario = 0.01m;
+                MostrarMensaje(ToastType.Info, $"El precio de {item.Producto.Nombre} fue ajustado a 0.01 (mínimo permitido)");
+            }
+        }
+
         // Crear la factura
         var factura = new FacturaAdmins
             {
@@ -237,10 +259,10 @@
         {
             var resultado = await FacturasService.Guardar(factura);
 
-        if (resultado)
-        {
-            // Obtener la factura recién creada con su ID
-            var facturaCreada = await FacturasService.Buscar(factura.FacturaAdminId);
+            if (resultado)
+            {
+                // Obtener la factura recién creada con su ID
+                var facturaCreada = await FacturasService.Buscar(factura.FacturaAdminId);
                 MostrarMensaje(ToastType.Success, "Compra registrada exitosamente!");
                 ProductosSeleccionados.Clear();
                 ProveedorSeleccionado = 0;
@@ -254,6 +276,16 @@
         {
             MostrarMensaje(ToastType.Danger, $"Error crítico: {ex.Message}");
         }
+    }
+
+    private void ActualizarCantidad(DetalleCompra item)
+    {
+        if (item.Cantidad < 1)
+        {
+            item.Cantidad = 1;
+            MostrarMensaje(ToastType.Warning, "La cantidad mínima permitida es 1");
+        }
+        StateHasChanged();
     }
 
     private List<ToastMessage> Mensajes = new();

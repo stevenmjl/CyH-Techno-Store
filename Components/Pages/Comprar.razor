@@ -123,6 +123,7 @@
                                                      @bind-Value="item.Cantidad"
                                                      min="1"
                                                      max="@item.Producto.Stock"
+                                                     @oninput="() => ActualizarCantidad(item)"
                                                      @onchange="() => ActualizarCantidad(item)" />
                                     </td>
                                     <td>@((item.Cantidad * item.Producto.PrecioUnitario).ToString("C"))</td>
@@ -286,6 +287,16 @@
             return;
         }
 
+        // Validar y corregir cantidades
+        foreach (var item in ProductosSeleccionados)
+        {
+            if (item.Cantidad < 1)
+            {
+                item.Cantidad = 1;
+                MostrarMensaje(ToastType.Info, $"La cantidad de {item.Producto.Nombre} fue ajustada a 1 (mínimo permitido)");
+            }
+        }
+
         // Verificar stock actualizado
         foreach (var item in ProductosSeleccionados)
         {
@@ -319,12 +330,7 @@
             {
                 MostrarMensaje(ToastType.Success, "¡Compra realizada con éxito!");
                 ProductosSeleccionados.Clear();
-
-                // Recargar productos para actualizar stocks
                 await BuscarProductos();
-
-                // Opcional: Redirigir a historial de compras
-                // navigation.NavigateTo("/mis-compras");
             }
             else
             {
@@ -339,13 +345,30 @@
 
     private async void ActualizarCantidad(DetalleCompra item)
     {
+        if (item.Cantidad < 1)
+        {
+            item.Cantidad = 1;
+            MostrarMensaje(ToastType.Warning, "La cantidad mínima permitida es 1");
+        }
+
         // Verificar que no exceda el stock disponible
         var producto = await ProductosService.Buscar(item.Producto.ProductoId);
-        if (producto != null && item.Cantidad > producto.Stock)
+        if (producto != null)
         {
-            item.Cantidad = producto.Stock;
-            MostrarMensaje(ToastType.Warning, $"Cantidad ajustada al stock disponible de {producto.Nombre}");
+            if (item.Cantidad > producto.Stock)
+            {
+                item.Cantidad = producto.Stock;
+                MostrarMensaje(ToastType.Warning, $"Cantidad ajustada al stock disponible de {producto.Nombre}");
+            }
+
+            // Forzar actualización si el stock es 0
+            if (producto.Stock == 0)
+            {
+                ProductosSeleccionados.Remove(item);
+                MostrarMensaje(ToastType.Warning, $"{producto.Nombre} fue removido por falta de stock");
+            }
         }
+
         StateHasChanged();
     }
 
