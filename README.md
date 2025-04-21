@@ -1,26 +1,27 @@
 # CyH-Techno-Store
 
-![Cyh-Techno-Store]()
+![Cyh-Techno-Store](![images](https://github.com/user-attachments/assets/e5bac223-6282-4e8b-9558-90069e4038d6))
+
 
 ## Participantes
 
 - **Francis Emanuel Castillo Vasquez**
   
-- **Steven Michael Javier L髉ez**
+- **Steven Michael Javier L贸pez**
 
 ## Funcionalidades del Proyecto
 
-- **1**- Carrito de compras anonimo: permite que el usuario navegue, seleccione productos y los agregue al carrito sin necesidad de iniciar sesi髇 ni registrarse.
-- **2**-Persistencia del carrito: guarda los productos aunque el usuario no haya iniciado sesi髇.
-- **3**-Sistema de roles: Gestiona permisos seg鷑 el tipo de usuario, Clientes pueden comprar y trabajadores acceder a funciones administrativas.
-- **4**-Sistema de filtros por categor韆: Permite al usuario buscar productos f醕ilmente, clasifica los equipos electr髇icos por tipo para agilizar la selecci髇.
+- **1**- Carrito de compras anonimo: permite que el usuario navegue, seleccione productos y los agregue al carrito sin necesidad de iniciar sesi贸n ni registrarse.
+- **2**-Persistencia del carrito: guarda los productos aunque el usuario no haya iniciado sesi贸n.
+- **3**-Sistema de roles: Gestiona permisos seg煤n el tipo de usuario, Clientes pueden comprar y trabajadores acceder a funciones administrativas.
+- **4**-Sistema de filtros por categor铆a: Permite al usuario buscar productos f谩cilmente, clasifica los equipos electr贸nicos por tipo para agilizar la selecci贸n.
 - **5**-Historial de compras del cliente: Muestra las compras realizadas con todos los detalles, incluye productos adquiridos, cantidades, precios unitarios y total por compra.
 - **6**-Historial de compras a proveedores: Permite al administrador consultar compras realizadas, incluye productos adquiridos, cantidades, precios unitarios y total de cada compra.
-- **7**- Control de inventario: Sistema que gestiona los productos en stock, permite ver cantidades disponibles, productos bajos en existencia y actualizaciones autom醫icas tras cada compra o venta.
-- **8**Gesti髇 de usuarios: Sistema que registra y organiza a todos los usuarios, permite al administrador ver y buscar tanto clientes como empleados con acceso al sistema,esto por medio de filtros para facilitar las busquedas.
+- **7**- Control de inventario: Sistema que gestiona los productos en stock, permite ver cantidades disponibles, productos bajos en existencia y actualizaciones autom谩ticas tras cada compra o venta.
+- **8**Gesti贸n de usuarios: Sistema que registra y organiza a todos los usuarios, permite al administrador ver y buscar tanto clientes como empleados con acceso al sistema,esto por medio de filtros para facilitar las busquedas.
 
 
-## Instalaci髇
+## Instalaci贸n
 
 1. Clona el repositorio:
    ```bash
