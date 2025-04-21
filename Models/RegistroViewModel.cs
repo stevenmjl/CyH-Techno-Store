@@ -26,4 +26,7 @@ public class RegistroViewModel
 
     [StringLength(256, MinimumLength = 6, ErrorMessage = "La dirección debe tener entre 6 y 256 caracteres")]
     public string? Direccion { get; set; }
+
+    [StringLength(19, ErrorMessage = "El número de tarjeta no puede exceder 19 caracteres")]
+    public string? NumeroTarjeta { get; set; }
 }

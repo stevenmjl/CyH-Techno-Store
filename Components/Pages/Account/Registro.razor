@@ -14,7 +14,7 @@
         <EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" FormName="RegistroForm">
             <DataAnnotationsValidator />
             <div class="mb-3 text-center">
-                <h3>CREAR CUENTA</h3>
+                <h3>Crear Cuenta</h3>
             </div>
 
             <div class="mb-3">
@@ -45,6 +45,12 @@
                 <label>Teléfono</label>
                 <InputText @bind-Value="Model.Telefono" class="form-control" placeholder="8091234567" />
                 <ValidationMessage For="() => Model.Telefono" />
+            </div>
+
+            <div class="mb-3">
+                <label>N&uacute;mero de Tarjeta</label>
+                <InputText @bind-Value="Model.NumeroTarjeta" class="form-control" placeholder="123456789" />
+                <ValidationMessage For="() => Model.NumeroTarjeta" />
             </div>
 
             <div class="mb-3">
@@ -95,6 +101,7 @@
                 Telefono = Model.Telefono,
                 Direccion = Model.Direccion,
                 Role = "User",
+                NumeroTarjeta = Model.NumeroTarjeta,
                 FechaRegistro = DateTime.Now
             };
 
@@ -102,7 +109,6 @@
 
         if (resultado)
         {
-            // Obtener el usuario recién creado con su ID
             var usuarioRegistrado = await UsuariosService.BuscarPorUsuario(nuevoUsuario.UserName!);
 
             if (usuarioRegistrado != null)
