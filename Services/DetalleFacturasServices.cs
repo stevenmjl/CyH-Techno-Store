@@ -110,4 +110,10 @@ public class DetalleFacturasService(IDbContextFactory<Contexto> dbFactory)
             .ToListAsync();
     }
 
+    public async Task<bool> ValidarStockProducto(int productoId, int cantidad)
+    {
+        await using var contexto = await dbFactory.CreateDbContextAsync();
+        var producto = await contexto.Productos.FindAsync(productoId);
+        return producto != null && producto.Stock >= cantidad;
+    }
 }
