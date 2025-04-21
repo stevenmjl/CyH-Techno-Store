@@ -1,97 +1,12 @@
 ﻿@inherits LayoutComponentBase
-
-<style>
-    .top-navbar {
-        min-height: 50px;
-        background-color: #0d6efd !important;
-        position: fixed;
-        width: 100%;
-        z-index: 1000;
-        top: auto;
-    }
-
-    .navbar-container {
-        display: flex;
-        width: 100%;
-        align-items: center; /* Cambiado de stretch a center para mejor alineación */
-        height: 50px; /* Asegurar altura constante */
-    }
-
-    .nav-scroll-container {
-        display: flex;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        align-items: center;
-        height: 50px; /* Altura fija igual para todos */
-    }
-
-        .nav-scroll-container::-webkit-scrollbar {
-            display: none;
-        }
-
-    .nav-item {
-        display: flex !important;
-        align-items: center !important;
-        height: 50px !important; /* Forzar la misma altura para todos */
-        margin: 0 !important; /* Eliminar márgenes que pueden causar desalineación */
-        padding: 0 !important; /* Eliminar padding que puede causar desalineación */
-    }
-
-    .nav-link {
-        padding: 0 0.8rem !important;
-        color: white !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important; /* Centrado horizontal también */
-        height: 50px !important; /* Forzar altura igual para todos */
-        white-space: nowrap;
-        margin: 0 !important; /* Eliminar márgenes */
-    }
-
-        .nav-link span {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            line-height: 1 !important;
-            height: 20px !important; /* Altura fija para el contenedor del texto */
-        }
-
-    .nav-icon {
-        font-size: 1.1rem;
-        margin-right: 0.4rem;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        vertical-align: middle !important;
-        /* Asegurar que todos los iconos tengan el mismo tamaño */
-        width: 1.1rem !important;
-        height: 1.1rem !important;
-    }
-
-    .navbar-brand {
-        font-size: 1.2rem;
-        margin-right: 1.5rem;
-        display: flex;
-        align-items: center;
-        height: 50px;
-    }
-
-    /* Reglas específicas para corregir Home y Usuarios */
-    .nav-link span .bi-house-door-fill,
-    .nav-link span .bi-people {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        vertical-align: middle !important;
-    }
-</style>
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="navbar navbar-dark top-navbar px-3">
     <div class="container-fluid navbar-container">
         <a class="navbar-brand" href="">CyH-Techno-Store</a>
 
         <div class="nav-scroll-container">
+
             <!-- (( Accesible para todos )) -->
             <div class="nav-item">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -99,15 +14,18 @@
                 </NavLink>
             </div>
 
+            <!-- Vista de productos para comprar para todos menos Admin-->
+            @if (noAdminRegistrado)
+            {
+                <div class="nav-item">
+                    <NavLink class="nav-link" href="/comprar">
+                        <span><span class="bi bi-cart-fill nav-icon"></span> Ver Productos</span>
+                    </NavLink>
+                </div>
+            }
+
             <AuthorizeView Roles="User">
                 <Authorized>
-                    <!-- Vista de productos para comprar -->
-                    <div class="nav-item">
-                        <NavLink class="nav-link" href="/comprar">
-                            <span><span class="bi bi-cart-fill nav-icon"></span> Ver Productos</span>
-                        </NavLink>
-                    </div>
-
                     <!-- Facturas del cliente -->
                     <div class="nav-item">
                         <NavLink class="nav-link" href="/miscompras">
@@ -201,3 +119,93 @@
         </div>
     </div>
 </div>
+
+@code {
+    private bool noAdminRegistrado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        noAdminRegistrado = !user.IsInRole("Admin");
+    }
+}
+
+<style>
+    .top-navbar {
+        min-height: 50px;
+        background-color: #0d6efd !important;
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+        top: auto;
+    }
+
+    .navbar-container {
+        display: flex;
+        width: 100%;
+        align-items: center; /* Cambiado de stretch a center para mejor alineación */
+        height: 50px; /* Asegurar altura constante */
+    }
+
+    .nav-scroll-container {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        align-items: center;
+        height: 50px; /* Altura fija igual para todos */
+    }
+
+        .nav-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+    .nav-item {
+        display: flex !important;
+        align-items: center !important;
+        height: 50px !important; /* Forzar la misma altura para todos */
+        margin: 0 !important; /* Eliminar márgenes que pueden causar desalineación */
+        padding: 0 !important; /* Eliminar padding que puede causar desalineación */
+    }
+
+    .nav-link {
+        padding: 0 0.8rem !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important; /* Centrado horizontal también */
+        height: 50px !important; /* Forzar altura igual para todos */
+        white-space: nowrap;
+        margin: 0 !important; /* Eliminar márgenes */
+    }
+
+    .nav-link span {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        height: 20px !important; /* Altura fija para el contenedor del texto */
+    }
+
+    .nav-icon {
+        font-size: 1.6rem;
+        margin-right: 0.4rem;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+        /* Asegurar que todos los iconos tengan el mismo tamaño */
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+        margin-right: 1.5rem;
+        display: flex;
+        align-items: center;
+        height: 50px;
+    }
+</style>

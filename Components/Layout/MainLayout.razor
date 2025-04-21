@@ -15,6 +15,7 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
 <style>
     .page {
         display: flex;
@@ -28,18 +29,10 @@
         flex-direction: column;
     }
 
-    .top-row {
-        position: fixed;
-        width: 100%;
-        z-index: 1001;
-        top: 0;
-        height: 3rem;
-    }
-
     .content {
         flex: 1;
         padding-bottom: 1.5rem;
-        margin-top: calc(3rem + 50px); /* altura de top-row + navbar */
+        margin-top: calc(1rem + 50px); /* altura de top-row + navbar */
         overflow-y: auto;
     }
 
