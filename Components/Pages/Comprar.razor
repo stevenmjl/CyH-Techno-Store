@@ -1,0 +1,365 @@
+﻿@page "/comprar/"
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ProductosService ProductosService
+@inject FacturasService FacturasService
+@inject CategoriasService CategoriasService
+@using System.Security.Claims
+@inject NavigationManager navigation
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "User")]
+
+<PageTitle>Comprar Productos</PageTitle>
+<Toasts class="p-3" Messages="Mensajes" Placement="ToastsPlacement.TopRight"
+        AutoHide="true" Delay="5000" />
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <!-- Cabecera -->
+        <div class="card-header bg-success text-white">
+            <h3>Comprar Productos</h3>
+            <p>Bienvenido: @UserName</p>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="card-body">
+            <!-- Filtros de búsqueda -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control"
+                               @bind="terminoBusqueda"
+                               @bind:event="oninput"
+                               placeholder="Buscar producto..." />
+                        <button class="btn btn-outline-primary"
+                                @onclick="BuscarProductos">
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <InputSelect @bind-Value="CategoriaFiltro" class="form-control">
+                        <option value="0">Todas las categorías</option>
+                        @foreach (var cat in Categorias)
+                        {
+                            <option value="@cat.CategoriaId">@cat.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <!-- Resultados de búsqueda con imágenes -->
+            @if (ResultadosBusqueda.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+                    @foreach (var prod in ResultadosBusqueda)
+                    {
+                        <div class="col">
+                            <div class="card h-100">
+                                @if (!string.IsNullOrEmpty(prod.ImagenUrl))
+                                {
+                                    <img src="@prod.ImagenUrl" class="card-img-top product-image" alt="@prod.Nombre">
+                                }
+                                <div class="card-body">
+                                    <h5 class="card-title">@prod.Nombre</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">@prod.Categoria?.Nombre</small><br>
+                                        Stock: @prod.Stock<br>
+                                        Precio: @prod.PrecioUnitario.ToString("C")
+                                    </p>
+                                    <button class="btn btn-primary w-100"
+                                            disabled="@(prod.Stock <= 0)"
+                                            @onclick="() => AgregarProducto(prod)">
+                                        @if (prod.Stock <= 0)
+                                        {
+                                            <span>Sin Stock</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Agregar al Carrito</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Lista de productos seleccionados -->
+            @if (ProductosSeleccionados.Any())
+            {
+                <div class="mt-4">
+                    <h4>Tu Carrito de Compras</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio Unitario</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ProductosSeleccionados)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(item.Producto.ImagenUrl))
+                                            {
+                                                <img src="@item.Producto.ImagenUrl" class="product-image-small me-2" alt="@item.Producto.Nombre">
+                                            }
+                                            <div>
+                                                @item.Producto.Nombre<br>
+                                                <small class="text-muted">@item.Producto.Categoria?.Nombre</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@item.Producto.PrecioUnitario.ToString("C")</td>
+                                    <td>
+                                        <InputNumber class="form-control"
+                                                     @bind-Value="item.Cantidad"
+                                                     min="1"
+                                                     max="@item.Producto.Stock"
+                                                     @onchange="() => ActualizarCantidad(item)" />
+                                    </td>
+                                    <td>@((item.Cantidad * item.Producto.PrecioUnitario).ToString("C"))</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm"
+                                                @onclick="() => RemoverProducto(item)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong>@ProductosSeleccionados.Sum(p => p.Cantidad * p.Producto.PrecioUnitario).ToString("C")</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Pie de página -->
+        @if (ProductosSeleccionados.Any())
+        {
+            <div class="card-footer">
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-success btn-lg"
+                            @onclick="FinalizarCompra">
+                        <i class="bi bi-credit-card"></i> Finalizar Compra
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .product-image {
+        height: 180px;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+    .product-image-small {
+        height: 50px;
+        width: 50px;
+        object-fit: contain;
+    }
+</style>
+
+@code {
+    // Modelos y datos
+    private int UsuarioId { get; set; }
+    private string UserName { get; set; } = string.Empty;
+    private List<Categoria> Categorias { get; set; } = new();
+    private int CategoriaFiltro { get; set; }
+    private string terminoBusqueda = string.Empty;
+    private List<Productos> ResultadosBusqueda { get; set; } = new();
+    private List<DetalleCompra> ProductosSeleccionados { get; set; } = new();
+
+    // Clase auxiliar para el detalle temporal
+    private class DetalleCompra
+    {
+        public Productos Producto { get; set; } = new();
+        public int Cantidad { get; set; } = 1;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerUsuarioId();
+        await CargarCategorias();
+        await CargarProductosIniciales();
+    }
+
+    private async Task ObtenerUsuarioId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier);
+        var userNameClaim = authState.User.FindFirst(ClaimTypes.Name);
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
+        {
+            UsuarioId = userId;
+            UserName = userNameClaim?.Value ?? "Cliente";
+        }
+        else
+        {
+            navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task CargarCategorias()
+    {
+        Categorias = await CategoriasService.Listar();
+    }
+
+    private async Task CargarProductosIniciales()
+    {
+        var todosProductos = await ProductosService.Listar();
+        ResultadosBusqueda = todosProductos
+            .Where(p => p.Stock > 0) // Solo mostrar productos con stock
+            .Take(8) // Mostrar inicialmente 8 productos
+            .ToList();
+    }
+
+    private async Task BuscarProductos()
+    {
+        var todosProductos = await ProductosService.Listar();
+
+        var query = todosProductos.AsQueryable();
+
+        // Aplicar filtros
+        if (!string.IsNullOrWhiteSpace(terminoBusqueda))
+        {
+            query = query.Where(p => p.Nombre.Contains(terminoBusqueda, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (CategoriaFiltro > 0)
+        {
+            query = query.Where(p => p.CategoriaId == CategoriaFiltro);
+        }
+
+        ResultadosBusqueda = query
+            .Where(p => p.Stock > 0) // Solo productos con stock
+            .OrderBy(p => p.Nombre)  // Orden alfabético
+            .ToList();
+    }
+
+    private void AgregarProducto(Productos producto)
+    {
+        if (!ProductosSeleccionados.Any(p => p.Producto.ProductoId == producto.ProductoId))
+        {
+            ProductosSeleccionados.Add(new DetalleCompra
+                {
+                    Producto = producto,
+                    Cantidad = 1
+                });
+            MostrarMensaje(ToastType.Success, $"{producto.Nombre} agregado al carrito");
+        }
+        else
+        {
+            MostrarMensaje(ToastType.Info, $"{producto.Nombre} ya está en tu carrito");
+        }
+    }
+
+    private void RemoverProducto(DetalleCompra item)
+    {
+        ProductosSeleccionados.Remove(item);
+        MostrarMensaje(ToastType.Warning, $"{item.Producto.Nombre} removido del carrito");
+    }
+
+    private async Task FinalizarCompra()
+    {
+        // Validaciones básicas
+        if (!ProductosSeleccionados.Any())
+        {
+            MostrarMensaje(ToastType.Warning, "Tu carrito está vacío");
+            return;
+        }
+
+        // Verificar stock actualizado
+        foreach (var item in ProductosSeleccionados)
+        {
+            var producto = await ProductosService.Buscar(item.Producto.ProductoId);
+            if (producto == null || producto.Stock < item.Cantidad)
+            {
+                MostrarMensaje(ToastType.Warning, $"No hay suficiente stock de {item.Producto.Nombre}");
+                await CargarProductosIniciales(); // Refrescar datos
+                return;
+            }
+        }
+
+        // Crear la factura
+        var factura = new Facturas
+            {
+                FechaRegistro = DateTime.Now,
+                UsuarioId = this.UsuarioId,
+                DetalleFacturas = ProductosSeleccionados.Select(p => new DetalleFacturas
+                {
+                    ProductoId = p.Producto.ProductoId,
+                    Cantidad = p.Cantidad,
+                    PrecioUnitario = p.Producto.PrecioUnitario
+                }).ToList()
+            };
+
+        try
+        {
+            var resultado = await FacturasService.Guardar(factura);
+
+            if (resultado)
+            {
+                MostrarMensaje(ToastType.Success, "¡Compra realizada con éxito!");
+                ProductosSeleccionados.Clear();
+
+                // Recargar productos para actualizar stocks
+                await BuscarProductos();
+
+                // Opcional: Redirigir a historial de compras
+                // navigation.NavigateTo("/mis-compras");
+            }
+            else
+            {
+                MostrarMensaje(ToastType.Danger, "Error al procesar la compra");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje(ToastType.Danger, $"Error: {ex.Message}");
+        }
+    }
+
+    private async void ActualizarCantidad(DetalleCompra item)
+    {
+        // Verificar que no exceda el stock disponible
+        var producto = await ProductosService.Buscar(item.Producto.ProductoId);
+        if (producto != null && item.Cantidad > producto.Stock)
+        {
+            item.Cantidad = producto.Stock;
+            MostrarMensaje(ToastType.Warning, $"Cantidad ajustada al stock disponible de {producto.Nombre}");
+        }
+        StateHasChanged();
+    }
+
+    private List<ToastMessage> Mensajes = new();
+
+    private void MostrarMensaje(ToastType tipo, string contenido)
+    {
+        Mensajes.Add(new ToastMessage
+            {
+                Type = tipo,
+                Title = tipo == ToastType.Success ? "Éxito" : "Atención",
+                Message = contenido,
+                HelpText = DateTime.Now.ToString("g")
+            });
+        StateHasChanged();
+    }
+}
