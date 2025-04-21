@@ -1,0 +1,136 @@
+﻿@page "/registro"
+@using CyH_Techno_Store.Models
+@using CyH_Techno_Store.Services
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager NavigationManager
+@inject UsuariosService UsuariosService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IHttpContextAccessor HttpContextAccessor
+
+<div class="row">
+    <div class="col-lg-6 offset-lg-3 pt-4 pb-4 border rounded">
+        <EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" FormName="RegistroForm">
+            <DataAnnotationsValidator />
+            <div class="mb-3 text-center">
+                <h3>CREAR CUENTA</h3>
+            </div>
+
+            <div class="mb-3">
+                <label>Nombre de Usuario</label>
+                <InputText @bind-Value="Model.UserName" class="form-control" placeholder="Nombre de usuario" />
+                <ValidationMessage For="() => Model.UserName" />
+            </div>
+
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <InputText @bind-Value="Model.Password" type="password" class="form-control" placeholder="Contraseña" />
+                <ValidationMessage For="() => Model.Password" />
+            </div>
+
+            <div class="mb-3">
+                <label>Confirmar Contraseña</label>
+                <InputText @bind-Value="Model.ConfirmPassword" type="password" class="form-control" placeholder="Repite tu contraseña" />
+                <ValidationMessage For="() => Model.ConfirmPassword" />
+            </div>
+
+            <div class="mb-3">
+                <label>Correo Electrónico</label>
+                <InputText @bind-Value="Model.Correo" class="form-control" placeholder="tucorreo@ejemplo.com" />
+                <ValidationMessage For="() => Model.Correo" />
+            </div>
+
+            <div class="mb-3">
+                <label>Teléfono</label>
+                <InputText @bind-Value="Model.Telefono" class="form-control" placeholder="8091234567" />
+                <ValidationMessage For="() => Model.Telefono" />
+            </div>
+
+            <div class="mb-3">
+                <label>Dirección</label>
+                <InputText @bind-Value="Model.Direccion" class="form-control" placeholder="Calle Principal #123" />
+                <ValidationMessage For="() => Model.Direccion" />
+            </div>
+
+            <div class="mb-3 text-center">
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div class="alert alert-danger">@ErrorMessage</div>
+                }
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+                <a href="/login" class="btn btn-outline-secondary">Volver al Login</a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    public RegistroViewModel Model { get; set; } = new();
+
+    private string? ErrorMessage { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        ErrorMessage = null;
+
+        // Verificar si el usuario ya existe
+        var usuarioExistente = await UsuariosService.BuscarPorUsuario(Model.UserName!);
+        if (usuarioExistente != null)
+        {
+            ErrorMessage = "El nombre de usuario ya está en uso";
+            return;
+        }
+
+        // Crear nuevo usuario
+        var nuevoUsuario = new Usuarios
+            {
+                UserName = Model.UserName,
+                Password = Model.Password,
+                Correo = Model.Correo,
+                Telefono = Model.Telefono,
+                Direccion = Model.Direccion,
+                Role = "User",
+                FechaRegistro = DateTime.Now
+            };
+
+        var resultado = await UsuariosService.Guardar(nuevoUsuario);
+
+        if (resultado)
+        {
+            // Obtener el usuario recién creado con su ID
+            var usuarioRegistrado = await UsuariosService.BuscarPorUsuario(nuevoUsuario.UserName!);
+
+            if (usuarioRegistrado != null)
+            {
+                // Iniciar sesión automáticamente
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, usuarioRegistrado.UserName!),
+                    new Claim(ClaimTypes.NameIdentifier, usuarioRegistrado.UsuarioId.ToString()),
+                    new Claim(ClaimTypes.Role, usuarioRegistrado.Role!)
+                };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+                if (HttpContextAccessor.HttpContext != null)
+                {
+                    await HttpContextAccessor.HttpContext.SignInAsync(principal);
+                }
+
+                // Redirigir a la página principal
+                NavigationManager.NavigateTo("/", true);
+            }
+        }
+        else
+        {
+            ErrorMessage = "Ocurrió un error al registrar el usuario";
+        }
+    }
+}
