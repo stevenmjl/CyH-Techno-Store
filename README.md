@@ -30,7 +30,7 @@
    
 ## Link del Proyecto Final
 
-[Cyh-Techno-Store](https://carrentalproject.azurewebsites.net/)
+[Cyh-Techno-Store](http://cyh-techno-store.somee.com/)
  
 ## Roles
 - Admin
