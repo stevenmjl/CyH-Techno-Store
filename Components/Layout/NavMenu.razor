@@ -134,7 +134,7 @@
 
 <style>
     .top-navbar {
-        min-height: 50px;
+        min-height: 70px; /* Cambiado de 50px a 70px */
         background-color: #0d6efd !important;
         position: fixed;
         width: 100%;
@@ -145,8 +145,8 @@
     .navbar-container {
         display: flex;
         width: 100%;
-        align-items: center; /* Cambiado de stretch a center para mejor alineación */
-        height: 50px; /* Asegurar altura constante */
+        align-items: center;
+        height: 70px; /* Aumentado para coincidir con el navbar */
     }
 
     .nav-scroll-container {
@@ -155,19 +155,15 @@
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         align-items: center;
-        height: 50px; /* Altura fija igual para todos */
+        height: 70px; /* Aumentado para coincidir */
     }
-
-        .nav-scroll-container::-webkit-scrollbar {
-            display: none;
-        }
 
     .nav-item {
         display: flex !important;
         align-items: center !important;
-        height: 50px !important; /* Forzar la misma altura para todos */
-        margin: 0 !important; /* Eliminar márgenes que pueden causar desalineación */
-        padding: 0 !important; /* Eliminar padding que puede causar desalineación */
+        height: 70px !important; /* Aumentado */
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .nav-link {
@@ -175,30 +171,10 @@
         color: white !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important; /* Centrado horizontal también */
-        height: 50px !important; /* Forzar altura igual para todos */
+        justify-content: center !important;
+        height: 70px !important; /* Aumentado */
         white-space: nowrap;
-        margin: 0 !important; /* Eliminar márgenes */
-    }
-
-    .nav-link span {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1 !important;
-        height: 20px !important; /* Altura fija para el contenedor del texto */
-    }
-
-    .nav-icon {
-        font-size: 1.6rem;
-        margin-right: 0.4rem;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        vertical-align: middle !important;
-        /* Asegurar que todos los iconos tengan el mismo tamaño */
-        width: 1.2rem !important;
-        height: 1.2rem !important;
+        margin: 0 !important;
     }
 
     .navbar-brand {
@@ -206,6 +182,6 @@
         margin-right: 1.5rem;
         display: flex;
         align-items: center;
-        height: 50px;
+        height: 70px; /* Aumentado */
     }
 </style>
