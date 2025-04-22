@@ -6,17 +6,15 @@
         <a class="navbar-brand" href="">CyH-Techno-Store</a>
 
         <div class="nav-scroll-container">
-
-            <!-- (( Accesible para todos )) -->
-            <div class="nav-item">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span><span class="bi bi-house-door-fill nav-icon"></span> Home</span>
-                </NavLink>
-            </div>
-
             <!-- Vista de productos para comprar para todos menos Admin-->
             @if (noAdminRegistrado)
             {
+                <div class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span><span class="bi bi-house-door-fill nav-icon"></span> Home</span>
+                    </NavLink>
+                </div>
+
                 <div class="nav-item">
                     <NavLink class="nav-link" href="/comprar">
                         <span><span class="bi bi-cart-fill nav-icon"></span> Ver Productos</span>
@@ -140,6 +138,17 @@
         width: 100%;
         z-index: 1000;
         top: auto;
+    }
+
+    .nav-icon {
+        font-size: 1.6rem;
+        margin-right: 0.2rem !important; /* Reducido de 0.4rem a 0.2rem */
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+        width: 1.2rem !important;
+        height: 1.2rem !important;
     }
 
     .navbar-container {
